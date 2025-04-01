@@ -15,6 +15,7 @@ requires-python = ">=3.8.9"
 dependencies = [
     "click==8.1.7",
     "coverage==7.6.3",
+    "osqp==0.6.7.post3",
     "cvxpy==1.5.3",
     "dataclasses==0.6",
     "DateTime==5.5",
