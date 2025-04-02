@@ -1,7 +1,7 @@
 click==8.1.7
 coverage==7.6.3
 osqp==0.6.7.post3
-cvxpy==1.5.3
+cvxpy==1.6.4
 dataclasses==0.6
 DateTime==5.5
 openpyxl==3.1.5
