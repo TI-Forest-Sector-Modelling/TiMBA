@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -37,6 +38,11 @@ jobs:
     - name: Run test suite with coverage
       run: |
         pytest --cov=TiMBA --cov-report xml:coverage.xml
+
+    # Ensure coverage.xml exists before uploading it
+    - name: Check coverage XML report
+      run: |
+        if [ ! -f coverage.xml ]; then echo "Coverage report not found!"; exit 1; fi
 
     # Upload the coverage XML report as an artifact
     - name: Upload coverage XML artifact
