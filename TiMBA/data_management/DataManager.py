@@ -652,19 +652,20 @@ class DataManager:
             domain_col_name = VarNames.DOMAIN_COLNAME.value
             period_col_name = VarNames.PERIOD_COLNAME.value
             year_col_name = VarNames.YEAR_COLNAME.value
+            contionent_col_name = VarNames.CONTINENT_COLNAME.value
 
-            OptimData = OptimData.merge(RegionData[[Domains.Regions.region_code, "ContinentNew"]],
+            OptimData = OptimData.merge(RegionData[[Domains.Regions.region_code, contionent_col_name]],
                                         left_on=Domains.Regions.region_code, right_on=Domains.Regions.region_code,
                                         how="left")
             OptimData["Value"] = OptimData[quantity_col_name] * OptimData[price_col_name]
 
             OptimData_agg = pd.concat([
                 pd.concat([
-                    pd.DataFrame(OptimData.groupby(["ContinentNew", "CommodityCode", domain_col_name, period_col_name,
+                    pd.DataFrame(OptimData.groupby([contionent_col_name, "CommodityCode", domain_col_name, period_col_name,
                                                     year_col_name])[quantity_col_name].sum()),
-                    pd.DataFrame(OptimData.groupby(["ContinentNew", "CommodityCode", domain_col_name, period_col_name,
+                    pd.DataFrame(OptimData.groupby([contionent_col_name, "CommodityCode", domain_col_name, period_col_name,
                                                     year_col_name])["Value"].sum() /
-                                 OptimData.groupby(["ContinentNew", "CommodityCode", domain_col_name, period_col_name,
+                                 OptimData.groupby([contionent_col_name, "CommodityCode", domain_col_name, period_col_name,
                                                     year_col_name])[quantity_col_name].sum())], axis=1),
                 pd.concat([
                     pd.concat([pd.DataFrame(OptimData.groupby(["CommodityCode", domain_col_name, period_col_name,
@@ -673,7 +674,7 @@ class DataManager:
                                                                year_col_name])["Value"].sum() /
                                             OptimData.groupby(["CommodityCode", domain_col_name, period_col_name,
                                                                year_col_name])[quantity_col_name].sum())],
-                              axis=1)], keys=["Global"], names=["ContinentNew"])
+                              axis=1)], keys=["Global"], names=[contionent_col_name])
             ], axis=0).rename(columns={0: "weighted_price"}).reset_index()
 
             WorldData.OptimizationHelpers.set_attribute("data_aggregated", OptimData_agg)

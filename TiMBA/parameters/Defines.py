@@ -5,6 +5,7 @@ class VarNames(Enum):
     """
     Class to hold names of variables
     """
+    CONTINENT_COLNAME = "ContinentNew"
     DOMAIN_COLNAME = "domain"
     PRICE_COLNAME = "price"
     QUANTITY_COLNAME = "quantity"
