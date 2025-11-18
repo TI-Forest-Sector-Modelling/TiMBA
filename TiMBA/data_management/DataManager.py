@@ -567,7 +567,7 @@ class DataManager:
             WorldData.Regions.data = WorldData.Regions.data.merge(
                 AdditionalInfo.Country.data, left_on=[Domains.Regions.region_code], right_on=["Country-Code"],
                 how="left")[[Domains.Regions.region_code, Domains.Regions.region_name, "ISO-Code", "FAOCou-Code",
-                            "ContinentNew"]]
+                            VarNames.CONTINENT_COLNAME.value]]
         except TypeError:
             print("\nAddInfoError: complement all information about the product transformation to", 
                   "AdditionalInformation file or set the addinfo flag in userio to false.\n")
