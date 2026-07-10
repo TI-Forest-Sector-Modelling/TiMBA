@@ -74,6 +74,15 @@ def calc_intercept(self, domain_name:str, price_name:str, price: pd.Series, slop
     calc_prod_price_var = VarNames.CALC_PROD_PRICE.value
     quantity.replace(0, Constants.NON_ZERO_PARAMETER.value, inplace=True)  
     intercept = price - (slope * quantity)
+    if domain_name == "Supply":
+        print("intercept old: ",intercept)
+        try:
+            print(self.Data.Forest.data_aligned["removal_penalty"])
+            intercept[:-16] = intercept[:-16] * self.Data.Forest.data_aligned["removal_penalty"]
+        except KeyError:
+            pass
+        print("intercept new: ",intercept)
+
     intercept.fillna(0, inplace=True)
     intercept.replace(np.inf, 0, inplace=True)
     intercept.replace(-np.inf, 0, inplace=True)
@@ -581,8 +590,21 @@ def dynamize_forest(Data: pd.DataFrame, DataChange: pd.DataFrame, DataSupply: pd
     Data["ga"] = periodic_area_growth # TODO Hard code
     Data["gu"] = periodic_stock_growth_without_harvest # TODO Hard code
     Data["supply_from_forest"] = roundwood_supply.iloc[:len(Data)] # TODO Hard code
+    Data["removal_penalty"] = penalty_factor(
+        value=Data["supply_from_forest"] / Data[Domains.Forest.forest_stock]
+    )
 
     return growth_df
+
+
+def penalty_factor(value: pd.DataFrame, steepness: float = 10.0, threshold: float = 0.025, max_factor: int = 1000) -> float:
+    value = pd.to_numeric(value, errors="coerce")
+    exponent = np.clip(
+        (value - threshold) * steepness,
+        0.0,
+        np.log(max_factor)
+    )
+    return np.exp(exponent)
 
 
 def dynamize_supply(self, Data: pd.DataFrame, DataChange: pd.DataFrame, DataForest: pd.DataFrame,

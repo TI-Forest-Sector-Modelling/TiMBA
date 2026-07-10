@@ -45,28 +45,31 @@ def run_timba(Parameters:dict=None,folderpath:str=None):
         )
     world_list = os.listdir(INPUT_PATH)
     for world in world_list:
-        current_dt = dt.datetime.now().strftime("%Y%m%dT%H-%M-%S")
-        print("The model starts now:", (dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")),"\n")
-        print(f"Path: {folderpath}")
-        print(f"Name of input file: {world[:len(world) - 5]} \n")
-        print("User input for model settings:\n",
-              f"Start year: {Parameters.year}\n",
-              f"Number of periods: {Parameters.max_period}\n",
-              f"Calculation of prices by: {Parameters.calc_product_prices}\n",
-              f"Calculation of world prices by: {Parameters.calc_world_prices}\n",
-              f"Material balance: {Parameters.material_balance}\n",
-              f"Input data through serialization: {Parameters.serialization}\n",
-              f"Dynamization activated: {Parameters.dynamization_activated}\n",
-              f"Prices are capped: {Parameters.capped_prices}\n",
-              f"Optimization gives verbose logs: {Parameters.verbose_optimization_logger}\n",
-              f"TiMBA gives verbose logs: {Parameters.verbose_calculation_logger}\n",
-              f"Read additional informations: {Parameters.addInfo}\n")
-        main(UserIO=Parameters,
-             world_version=world,
-             time_stamp=current_dt,
-             Data_Path=folderpath / DATA_FOLDER,
-             sc_name=world[:len(world) - 5])     
-        close_logger()
+        try:
+            current_dt = dt.datetime.now().strftime("%Y%m%dT%H-%M-%S")
+            print("The model starts now:", (dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")),"\n")
+            print(f"Path: {folderpath}")
+            print(f"Name of input file: {world[:len(world) - 5]} \n")
+            print("User input for model settings:\n",
+                f"Start year: {Parameters.year}\n",
+                f"Number of periods: {Parameters.max_period}\n",
+                f"Calculation of prices by: {Parameters.calc_product_prices}\n",
+                f"Calculation of world prices by: {Parameters.calc_world_prices}\n",
+                f"Material balance: {Parameters.material_balance}\n",
+                f"Input data through serialization: {Parameters.serialization}\n",
+                f"Dynamization activated: {Parameters.dynamization_activated}\n",
+                f"Prices are capped: {Parameters.capped_prices}\n",
+                f"Optimization gives verbose logs: {Parameters.verbose_optimization_logger}\n",
+                f"TiMBA gives verbose logs: {Parameters.verbose_calculation_logger}\n",
+                f"Read additional informations: {Parameters.addInfo}\n")
+            main(UserIO=Parameters,
+                world_version=world,
+                time_stamp=current_dt,
+                Data_Path=folderpath / DATA_FOLDER,
+                sc_name=world[:len(world) - 5])     
+            close_logger()
+        except PermissionError:
+            pass
 
     if Parameters.chart_flag:
         world_count = len(world_list)
