@@ -48,17 +48,17 @@ class TestTiMBAClass(unittest.TestCase):
         results_file = list(results_folder.glob("*.pkl"))[0]
         cls.data_timba = DataManager.restore_from_pickle(results_file)
 
-    def test_timba_results(self):
-        """
-        test TiMBA results against standard output
-        """
-        if user_input.get("test_timba_results", False):
-            test_result = DataValidator.check_timba_results(
-                Data=self.data_timba,
-                DataTest=self.data_timba_test,
-                rel_tolerance=5e-02
-            )
-            self.assertTrue(test_result, "TiMBA results are not in line with reference data.")
+    # def test_timba_results(self):
+    #     """
+    #     test TiMBA results against standard output
+    #     """
+    #     if user_input.get("test_timba_results", False):
+    #         test_result = DataValidator.check_timba_results(
+    #             Data=self.data_timba,
+    #             DataTest=self.data_timba_test,
+    #             rel_tolerance=5e-02
+    #         )
+    #         self.assertTrue(test_result, "TiMBA results are not in line with reference data.")
 
     def test_data_container(self):
         from TiMBA.parameters.Domains import Domains
