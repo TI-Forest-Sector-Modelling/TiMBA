@@ -1,514 +1,115 @@
 {
-  "access": {
-    "embargo": {
-      "active": false,
-      "reason": null
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "TI-FSM"
     },
-    "files": "public",
-    "record": "public",
-    "status": "open"
-  },
-  "created": "2025-12-03T17:06:07.427226+00:00",
-  "custom_fields": {
-    "code:codeRepository": "https://github.com/TI-Forest-Sector-Modelling/TiMBA",
-    "code:developmentStatus": {
-      "id": "active",
-      "title": {
-        "en": "Active"
-      }
+    {
+      "name": "Morland, Christian",
+      "affiliation": "Thünen Institue of Forestry",
+      "orcid": "0000-0001-6600-570X"
     },
-    "code:programmingLanguage": [
-      {
-        "id": "python",
-        "title": {
-          "en": "Python"
-        }
-      }
-    ],
-    "imprint:imprint": {
-      "place": "Braunschweig, Germany",
-      "title": "TiMBA - Timber market Model for policy-Based Analysis: Validation of a Partial Equilibrium Model (DOI: 10.3220/253-2026-29)"
+    {
+      "name": "Schier, Franziska",
+      "affiliation": "Thünen Institue of Forestry",
+      "orcid": "0000-0002-3378-1371"
     },
-    "journal:journal": {
-      "issn": "2475-9066",
-      "issue": "115",
-      "pages": "1-5",
-      "title": "TiMBA (Timber market Model for policy-Based Analysis)",
-      "volume": "10"
+    {
+      "name": "Tandetzki, Julia",
+      "affiliation": "Thünen Institue of Forestry",
+      "orcid": "0000-0002-0630-9434"
+    },
+    {
+      "name": "Honkomp, Tomke",
+      "affiliation": "Thünen Institue of Forestry",
+      "orcid": "0000-0002-6719-0190"
     }
-  },
-  "deletion_status": {
-    "is_deleted": false,
-    "status": "P"
-  },
-  "files": {
-    "count": 1,
-    "enabled": true,
-    "entries": {
-      "TI-Forest-Sector-Modelling/TiMBA-v1.3.0.zip": {
-        "access": {
-          "hidden": false
-        },
-        "checksum": "md5:0d3e8a0259e2be2e734125bba5713ec8",
-        "ext": "zip",
-        "id": "2cffde54-b8c4-4627-bdd2-778909c99ee4",
-        "key": "TI-Forest-Sector-Modelling/TiMBA-v1.3.0.zip",
-        "links": {
-          "container": "https://zenodo.org/api/records/17806030/files/TI-Forest-Sector-Modelling/TiMBA-v1.3.0.zip/container",
-          "content": "https://zenodo.org/api/records/17806030/files/TI-Forest-Sector-Modelling/TiMBA-v1.3.0.zip/content",
-          "self": "https://zenodo.org/api/records/17806030/files/TI-Forest-Sector-Modelling/TiMBA-v1.3.0.zip"
-        },
-        "metadata": null,
-        "mimetype": "application/zip",
-        "size": 5805385,
-        "storage_class": "L"
-      }
+  ],
+  "description": "TiMBA is a partial economic equilibrium model for the\n global forest products market. The model endogenously\n simulates production, consumption and trade of wood and\n wood-based products in 180 countries. TiMBA recursively\n computes the market equilibrium for each country and\n product in a given period by maximizing the social surplus\n in the global forest sector. In the equilibrium processes,\n product supply, demand and price are balanced for each\n simulation period.",
+  "imprint_place": "Braunschweig, Germany",
+  "journal_issue": "115",
+  "journal_pages": "1-5",
+  "journal_title": "TiMBA (Timber market Model for policy-Based Analysis)",
+  "journal_volume": "10",
+  "keywords": [
+    "research",
+    "Forest sector model",
+    "partial equilibrium model",
+    "optimization",
+    "wood markets"
+  ],
+  "subjects": [
+    {
+      "term": "research"
     },
-    "order": [],
-    "total_bytes": 5805385
-  },
-  "id": "17806030",
-  "is_draft": false,
-  "is_published": true,
-  "links": {
-    "access": "https://zenodo.org/api/records/17806030/access",
-    "access_grants": "https://zenodo.org/api/records/17806030/access/grants",
-    "access_links": "https://zenodo.org/api/records/17806030/access/links",
-    "access_request": "https://zenodo.org/api/records/17806030/access/request",
-    "access_users": "https://zenodo.org/api/records/17806030/access/users",
-    "archive": "https://zenodo.org/api/records/17806030/files-archive",
-    "archive_media": "https://zenodo.org/api/records/17806030/media-files-archive",
-    "communities": "https://zenodo.org/api/records/17806030/communities",
-    "communities-suggestions": "https://zenodo.org/api/records/17806030/communities-suggestions",
-    "doi": "https://doi.org/10.5281/zenodo.17806030",
-    "draft": "https://zenodo.org/api/records/17806030/draft",
-    "file_modification": "https://zenodo.org/api/records/17806030/file-modification",
-    "files": "https://zenodo.org/api/records/17806030/files",
-    "latest": "https://zenodo.org/api/records/17806030/versions/latest",
-    "latest_html": "https://zenodo.org/records/17806030/latest",
-    "media_files": "https://zenodo.org/api/records/17806030/media-files",
-    "parent": "https://zenodo.org/api/records/13842384",
-    "parent_doi": "https://doi.org/10.5281/zenodo.13842384",
-    "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.13842384",
-    "parent_html": "https://zenodo.org/records/13842384",
-    "preview_html": "https://zenodo.org/records/17806030?preview=1",
-    "quota_increase": "https://zenodo.org/api/records/17806030/quota-increase",
-    "request_deletion": "https://zenodo.org/api/records/17806030/request-deletion",
-    "requests": "https://zenodo.org/api/records/17806030/requests",
-    "reserve_doi": "https://zenodo.org/api/records/17806030/draft/pids/doi",
-    "self": "https://zenodo.org/api/records/17806030",
-    "self_doi": "https://doi.org/10.5281/zenodo.17806030",
-    "self_doi_html": "https://zenodo.org/doi/10.5281/zenodo.17806030",
-    "self_html": "https://zenodo.org/records/17806030",
-    "self_iiif_manifest": "https://zenodo.org/api/iiif/record:17806030/manifest",
-    "self_iiif_sequence": "https://zenodo.org/api/iiif/record:17806030/sequence/default",
-    "versions": "https://zenodo.org/api/records/17806030/versions"
-  },
-  "media_files": {
-    "count": 0,
-    "enabled": false,
-    "entries": {},
-    "order": [],
-    "total_bytes": 0
-  },
-  "metadata": {
-    "additional_descriptions": [
-      {
-        "description": "TiMBA was developed and written by an authors' collective in which the authors have contributed over years their individual strengths and knowledge to make the model work. The authors' collective is named Th\u00fcnen Institute Forest Sector Modelling (TI-FSM). The individual authors are listed as  Co-authors in alphabetical order.",
-        "type": {
-          "id": "notes",
-          "title": {
-            "de": "Anmerkungen",
-            "en": "Notes"
-          }
-        }
-      }
-    ],
-    "copyright": "Copyright (C) 2025  Thuenen Institute, TI-FSM, Christian Morland,  Franziska Schier, Julia Tandetzki, Tomke Honkomp",
-    "creators": [
-      {
-        "person_or_org": {
-          "family_name": "TI-FSM",
-          "name": "TI-FSM",
-          "type": "personal"
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "name": "Th\u00fcnen Institue of Forestry"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Morland",
-          "given_name": "Christian",
-          "identifiers": [
-            {
-              "identifier": "0000-0001-6600-570X",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Morland, Christian",
-          "type": "personal"
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "name": "Th\u00fcnen Institue of Forestry"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Schier",
-          "given_name": "Franziska",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-3378-1371",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Schier, Franziska",
-          "type": "personal"
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "name": "Th\u00fcnen Institue of Forestry"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Tandetzki",
-          "given_name": "Julia",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-0630-9434",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Tandetzki, Julia",
-          "type": "personal"
-        }
-      },
-      {
-        "affiliations": [
-          {
-            "name": "Th\u00fcnen Institue of Forestry"
-          }
-        ],
-        "person_or_org": {
-          "family_name": "Honkomp",
-          "given_name": "Tomke",
-          "identifiers": [
-            {
-              "identifier": "0000-0002-6719-0190",
-              "scheme": "orcid"
-            }
-          ],
-          "name": "Honkomp, Tomke",
-          "type": "personal"
-        }
-      }
-    ],
-    "dates": [
-      {
-        "date": "2024-09-26",
-        "description": "Release first version",
-        "type": {
-          "id": "available",
-          "title": {
-            "de": "Verf\u00fcgbar",
-            "en": "Available"
-          }
-        }
-      }
-    ],
-    "description": "TiMBA is a partial economic equilibrium model for the\n global forest products market. The model endogenously\n simulates production, consumption and trade of wood and\n wood-based products in 180 countries. TiMBA recursively\n computes the market equilibrium for each country and\n product in a given period by maximizing the social surplus\n in the global forest sector. In the equilibrium processes,\n product supply, demand and price are balanced for each\n simulation period.",
-    "identifiers": [
-      {
-        "identifier": "https://archive.softwareheritage.org/swh:1:dir:1828c8cf6b8df60176209f7d2f2d8e6f49e68950",
-        "scheme": "url"
-      }
-    ],
-    "languages": [
-      {
-        "id": "eng",
-        "title": {
-          "en": "English"
-        }
-      }
-    ],
-    "publication_date": "2025-12-03",
-    "publisher": "Zenodo",
-    "references": [
-      {
-        "reference": "Buongiorno, J., Zhu, S., Zhang, D., Turner, J., & Tomberlin, D. (2003). The global forest products model: Structure, estimation, and applications. Academic Press. ISBN: 978- 0121413620"
-      },
-      {
-        "reference": "Buongiorno, J. (2015). Global modelling to predict timber production and prices: The GFPM approach. Forestry, 88(3), 291\u2013303. https://doi.org/10.1093/forestry/cpu047"
-      },
-      {
-        "reference": "Diamond, S., & Boyd, S. (2016). CVXPY: A Python-embedded modeling language for convex optimization. Journal of Machine Learning Research, 17 (83), 1\u20135."
-      },
-      {
-        "reference": "Stellato, B., Banjac, G., Goulart, P., Bemporad, A., & Boyd, S. (2020). OSQP: An operator splitting solver for quadratic programs. Mathematical Programming Computation, 12(4), 637\u2013672. https://doi.org/10.1007/s12532-020-00179-2"
-      },
-      {
-        "reference": "Samuelson, P. A. (1952). Spatial price equilibrium and linear programming. The American Economic Review, 42(3), 283\u2013303. http://www.jstor.org/stable/1810381"
-      }
-    ],
+    {
+      "term": "Forest sector model"
+    },
+    {
+      "term": "partial equilibrium model"
+    },
+    {
+      "term": "optimization"
+    },
+    {
+      "term": "wood markets"
+    }
+  ],
+  "license": "agpl-3.0-or-later",
+  "notes": "TiMBA was developed and written by an authors' collective in which the authors have contributed over years their individual strengths and knowledge to make the model work. The authors' collective is named Thünen Institute Forest Sector Modelling (TI-FSM). The individual authors are listed as  Co-authors in alphabetical order.",
+  "partof_title": "TiMBA - Timber market Model for policy-Based Analysis: Validation of a Partial Equilibrium Model (DOI: 10.3220/253-2026-29)",
+  "references": [
+    "Buongiorno, J., Zhu, S., Zhang, D., Turner, J., & Tomberlin, D. (2003). The global forest products model: Structure, estimation, and applications. Academic Press. ISBN: 978- 0121413620",
+    "Buongiorno, J. (2015). Global modelling to predict timber production and prices: The GFPM approach. Forestry, 88(3), 291–303. https://doi.org/10.1093/forestry/cpu047",
+    "Diamond, S., & Boyd, S. (2016). CVXPY: A Python-embedded modeling language for convex optimization. Journal of Machine Learning Research, 17 (83), 1–5.",
+    "Stellato, B., Banjac, G., Goulart, P., Bemporad, A., & Boyd, S. (2020). OSQP: An operator splitting solver for quadratic programs. Mathematical Programming Computation, 12(4), 637–672. https://doi.org/10.1007/s12532-020-00179-2",
+    "Samuelson, P. A. (1952). Spatial price equilibrium and linear programming. The American Economic Review, 42(3), 283–303. http://www.jstor.org/stable/1810381"
+  ],
     "related_identifiers": [
-      {
-        "identifier": "https://github.com/TI-Forest-Sector-Modelling/TiMBA/tree/v1.3.0",
-        "relation_type": {
-          "id": "issupplementto",
-          "title": {
-            "de": "Erg\u00e4nzt",
-            "en": "Is supplement to"
-          }
-        },
-        "resource_type": {
-          "id": "software",
-          "title": {
-            "de": "Software",
-            "en": "Software"
-          }
-        },
-        "scheme": "url"
-      },
-      {
-        "identifier": "10.21105/joss.08034",
-        "relation_type": {
-          "id": "ispublishedin",
-          "title": {
-            "de": "Ist ver\u00f6ffentlicht in",
-            "en": "Is published in"
-          }
-        },
-        "resource_type": {
-          "id": "publication-article",
-          "title": {
-            "de": "Zeitschriftenartikel",
-            "en": "Journal article"
-          }
-        },
-        "scheme": "doi"
-      },
-      {
-        "identifier": "10.5281/zenodo.20925292",
-        "relation_type": {
-          "id": "issupplementedby",
-          "title": {
-            "de": "Wird erg\u00e4nzt durch",
-            "en": "Is supplemented by"
-          }
-        },
-        "resource_type": {
-          "id": "software",
-          "title": {
-            "de": "Software",
-            "en": "Software"
-          }
-        },
-        "scheme": "doi"
-      },
-      {
-        "identifier": "10.5281/zenodo.17814169",
-        "relation_type": {
-          "id": "issupplementedby",
-          "title": {
-            "de": "Wird erg\u00e4nzt durch",
-            "en": "Is supplemented by"
-          }
-        },
-        "resource_type": {
-          "id": "software",
-          "title": {
-            "de": "Software",
-            "en": "Software"
-          }
-        },
-        "scheme": "doi"
-      },
-      {
-        "identifier": "10.5281/zenodo.19466845",
-        "relation_type": {
-          "id": "requires",
-          "title": {
-            "de": "Setzt voraus",
-            "en": "Requires"
-          }
-        },
-        "resource_type": {
-          "id": "dataset",
-          "title": {
-            "de": "Datensatz",
-            "en": "Dataset"
-          }
-        },
-        "scheme": "doi"
-      },
-      {
-        "identifier": "10.5281/zenodo.19466845",
-        "relation_type": {
-          "id": "haspart",
-          "title": {
-            "de": "Umfasst folgenden Teil",
-            "en": "Has part"
-          }
-        },
-        "resource_type": {
-          "id": "dataset",
-          "title": {
-            "de": "Datensatz",
-            "en": "Dataset"
-          }
-        },
-        "scheme": "doi"
-      }
-    ],
-    "resource_type": {
-      "id": "software",
-      "title": {
-        "de": "Software",
-        "en": "Software"
-      }
+    {
+      "identifier": "https://github.com/TI-Forest-Sector-Modelling/TiMBA",
+      "relation": "isSupplementTo",
+      "scheme": "url",
+      "resource_type": "software"
     },
-    "rights": [
-      {
-        "description": {
-          "en": ""
-        },
-        "id": "agpl-3.0-or-later",
-        "props": {
-          "scheme": "spdx",
-          "url": "https://www.gnu.org/licenses/agpl.txt"
-        },
-        "title": {
-          "en": "GNU Affero General Public License v3.0 or later"
-        }
-      }
-    ],
-    "subjects": [
-      {
-        "subject": "research"
-      },
-      {
-        "subject": "Forest sector model"
-      },
-      {
-        "subject": "partial equilibrium model"
-      },
-      {
-        "subject": "optimization"
-      },
-      {
-        "subject": "wood markets"
-      }
-    ],
-    "title": "TiMBA (Timber market Model for policy-Based Analysis)",
-    "version": "v1.3.0"
-  },
-  "parent": {
-    "access": {
-      "owned_by": {
-        "user": "1194720"
-      },
-      "settings": {
-        "accept_conditions_text": null,
-        "allow_guest_requests": false,
-        "allow_user_requests": false,
-        "secret_link_expiration": 0
-      }
+    {
+      "identifier": "10.21105/joss.08034",
+      "relation": "isPublishedIn",
+      "scheme": "doi",
+      "resource_type": "publication-article"
     },
-    "communities": {
-      "default": "09c92e32-50ba-4d88-8c60-9a74a198078d",
-      "entries": [
-        {
-          "access": {
-            "member_policy": "open",
-            "members_visibility": "public",
-            "record_submission_policy": "open",
-            "review_policy": "open",
-            "visibility": "public"
-          },
-          "children": {
-            "allow": false
-          },
-          "created": "2024-03-26T14:59:31.275326+00:00",
-          "custom_fields": {},
-          "deletion_status": {
-            "is_deleted": false,
-            "status": "P"
-          },
-          "id": "09c92e32-50ba-4d88-8c60-9a74a198078d",
-          "links": {},
-          "metadata": {
-            "curation_policy": "<p>The Zenodo community of the Th&uuml;nen-Institut contains exclusively content with contributions of the Th&uuml;nen-Institut. All other submissions will be rejected.</p>",
-            "organizations": [
-              {
-                "id": "00mr84n67"
-              }
-            ],
-            "title": "Johann Heinrich von Th\u00fcnen-Institut",
-            "type": {
-              "id": "organization"
-            },
-            "website": "https://www.thuenen.de/de/"
-          },
-          "revision_id": 7,
-          "slug": "thuenen",
-          "updated": "2024-03-26T15:18:00.842375+00:00"
-        }
-      ],
-      "ids": [
-        "09c92e32-50ba-4d88-8c60-9a74a198078d"
-      ]
+    {
+      "identifier": "10.5281/zenodo.20925292",
+      "relation": "isSupplementedBy",
+      "scheme": "doi",
+      "resource_type": "software"
     },
-    "id": "13842384",
-    "pids": {
-      "doi": {
-        "client": "datacite",
-        "identifier": "10.5281/zenodo.13842384",
-        "provider": "datacite"
-      }
+    {
+      "identifier": "10.5281/zenodo.17814169",
+      "relation": "isSupplementedBy",
+      "scheme": "doi",
+      "resource_type": "software"
+    },
+    {
+      "identifier": "10.5281/zenodo.19466845",
+      "relation": "requires",
+      "scheme": "doi",
+      "resource_type": "dataset"
+    },
+    {
+      "identifier": "10.5281/zenodo.19466845",
+      "relation": "hasPart",
+      "scheme": "doi",
+      "resource_type": "dataset"
+    },
+    {
+      "identifier": "https://archive.softwareheritage.org/swh:1:dir:1828c8cf6b8df60176209f7d2f2d8e6f49e68950",
+      "relation": "isAlternateIdentifier",
+      "scheme": "url",
+      "resource_type": "dataset"
     }
-  },
-  "pids": {
-    "doi": {
-      "client": "datacite",
-      "identifier": "10.5281/zenodo.17806030",
-      "provider": "datacite"
-    },
-    "oai": {
-      "identifier": "oai:zenodo.org:17806030",
-      "provider": "oai"
-    }
-  },
-  "revision_id": 8,
-  "stats": {
-    "all_versions": {
-      "data_volume": 1962166898.0,
-      "downloads": 225,
-      "unique_downloads": 216,
-      "unique_views": 1850,
-      "views": 2018
-    },
-    "this_version": {
-      "data_volume": 249631555.0,
-      "downloads": 43,
-      "unique_downloads": 42,
-      "unique_views": 202,
-      "views": 216
-    }
-  },
-  "status": "published",
-  "swh": {
-    "swhid": "swh:1:dir:e6e6240c08c0b70af91ed91083b3e37fce702214;origin=https://doi.org/10.5281/zenodo.13842384;visit=swh:1:snp:2f6aed0842a62a28ae45836d1833807ac77f2a2d;anchor=swh:1:rel:82b8d27a24ca85e5c57a89bcae5b69d8f9bc047f;path=TI-Forest-Sector-Modelling-TiMBA-b659274"
-  },
-  "updated": "2026-07-08T09:23:34.471797+00:00",
-  "versions": {
-    "index": 7,
-    "is_latest": false
-  }
+  ],
+  "upload_type": "software",
+  "title": "TiMBA (Timber market Model for policy-Based Analysis)"
 }
