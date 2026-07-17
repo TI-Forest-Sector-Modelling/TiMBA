@@ -1,5 +1,11 @@
 # Changelog
 
+## [v1.4.2] - 2026-07-17
+
+### Fix
+- .zenodo.json bug fixed
+   
+
 ## [v1.4.1] - 2026-07-17
 
 ### Added

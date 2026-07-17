@@ -70,7 +70,7 @@
   "dateCreated": "2025-12-03",
   "dateModified": "2026-07-17",
   "datePublished": "2025-12-03",
-  "version": "v1.4.1",
+  "version": "v1.4.2",
   "license": "https://www.gnu.org/licenses/agpl.txt",
   "description": "TiMBA is a partial economic equilibrium model for the\n global forest products market. The model endogenously\n simulates production, consumption and trade of wood and\n wood-based products in 180 countries. TiMBA recursively\n computes the market equilibrium for each country and\n product in a given period by maximizing the social surplus\n in the global forest sector. In the equilibrium processes,\n product supply, demand and price are balanced for each\n simulation period. ",
   "hasPart": [
