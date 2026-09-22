@@ -686,6 +686,15 @@ def dynamize_supply(self, Data: pd.DataFrame, DataChange: pd.DataFrame, DataFore
                                                   period_block=period_info["block"],
                                                   period_length=period_info["length"])
 
+    upper_bound_supply_idx = Data[Data[Domains.Supply.upper_bound] > 0].index
+    Data.loc[upper_bound_supply_idx, Domains.Supply.upper_bound] = Data.loc[
+        upper_bound_supply_idx, Domains.Supply.quantity]
+
+    lower_bound_supply_idx = Data[Data[Domains.Supply.lower_bound] > 0].index
+    Data.loc[lower_bound_supply_idx, Domains.Supply.lower_bound] = Data.loc[
+        lower_bound_supply_idx, Domains.Supply.quantity]
+    Data[Domains.Supply.last_period_quantity] = Data[Domains.Supply.quantity]
+
     dynamized_supply_fuelwood_roundwood = Data[Domains.Supply.quantity] * fuelwood_roundwood_supply_shift
     dynamized_supply_fuelwood_roundwood.loc[fuelwood_roundwood_supply_index] = 0
 
