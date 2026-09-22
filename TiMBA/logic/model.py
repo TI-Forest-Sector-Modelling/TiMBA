@@ -372,44 +372,40 @@ class TiMBA(object):
 
         else:
 
-            paper_recycled_quantity = pd.concat([
+            paper_demand_prev = pd.concat([
                 pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.region_code]),
                 pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.commodity_code]),
                 pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.quantity])], axis=1)
 
-            paper_recycled_quantity = paper_recycled_quantity.loc[
-                paper_recycled_quantity["CommodityCode"] > 90]  # ToDo: Hard Code change to list with all paperproducts in defines
-            paper_recycled_quantity = paper_recycled_quantity.reset_index()
+            paper_demand_prev = paper_demand_prev.loc[paper_demand_prev[Domains.Demand.commodity_code] > 90]  # ToDo: Hard Code change to list with all paperproducts in defines
+            paper_demand_prev = paper_demand_prev.reset_index(drop=True)
 
-            recycled_quantity = pd.DataFrame(self.Data.RecyclingS.data[Domains.RecyclingS.recov_ubs])
-            recycled_quantity_supply = pd.concat([paper_recycled_quantity, recycled_quantity], axis=1)
-            recycled_quantity_supply["recycled_quantity"] = (recycled_quantity_supply.iloc[:, 3] # TODO Hard code (future work)
-                                                             * recycled_quantity_supply.iloc[:, 4])
+            recycling_upper_bound = pd.DataFrame(self.Data.RecyclingS.data_aligned[Domains.RecyclingS.recov_ubs])
+            recycled_quantity_supply = pd.concat([paper_demand_prev, recycling_upper_bound], axis=1)
+            recycled_quantity_supply["recycled_quantity"] = (recycled_quantity_supply[Domains.Demand.quantity]
+                                                             * recycled_quantity_supply[Domains.RecyclingS.recov_ubs])
 
-            wastepaper_supply_upper_bound = (recycled_quantity_supply.groupby('RegionCode')["recycled_quantity"].sum() # TODO Hard code (future work)
+            wastepaper_supply_upper_bound = (
+                recycled_quantity_supply.groupby(Domains.Demand.region_code)["recycled_quantity"].sum() # TODO Hard code (future work)
                                              ).reset_index()
+            wastepaper_supply_upper_bound[Domains.Supply.commodity_code] = 90
 
-            supply_upper_bound_commodity = self.Data.Supply.data_aligned[
-                self.Data.Supply.data_aligned[Domains.Supply.commodity_code] == 90][Domains.Supply.commodity_code]
-            supply_upper_bound_commodity = pd.DataFrame(supply_upper_bound_commodity).reset_index(drop=True)
-
-            supply_upper_bound = pd.concat([supply_upper_bound_commodity, wastepaper_supply_upper_bound], axis=1)
             supply_upper_bound = self.Data.Supply.data_aligned.merge(
-                supply_upper_bound,
+                wastepaper_supply_upper_bound,
                 left_on=[Domains.Supply.commodity_code, Domains.Supply.region_code],
                 right_on=[Domains.Supply.commodity_code, Domains.Supply.region_code],
                 how="left").fillna(0)
 
+            supply_upper_bound[Domains.Supply.upper_bound] = (supply_upper_bound[Domains.Supply.upper_bound] +
+                                                              supply_upper_bound["recycled_quantity"])  # TODO Hard code (future work)
+            supply_upper_bound.loc[supply_upper_bound[
+                    Domains.Supply.upper_bound] == 0, Domains.Supply.upper_bound] = Constants.BOUND_OMITTED_VALUE.value
+
             if dynamization_activated:
-                supply_upper_bound["SUB"] = supply_upper_bound["SUB"] + supply_upper_bound["recycled_quantity"] # TODO Hard code (future work)
-
-                supply_upper_bound.loc[supply_upper_bound["SUB"] == 0] = Constants.BOUND_OMITTED_VALUE.value
-
-                supply_upper_bound = supply_upper_bound["SUB"] * (1 + supply_upper_bound["growth_rate_upper_bound"]) # TODO Hard code (future work)
+                supply_upper_bound = (supply_upper_bound[Domains.Supply.upper_bound] *
+                                      (1 + supply_upper_bound["growth_rate_upper_bound"]))
             else:
-                supply_upper_bound["SUB"] = supply_upper_bound["SUB"] + supply_upper_bound["recycled_quantity"] # TODO Hard code (future work)
-
-                supply_upper_bound.loc[supply_upper_bound["SUB"] == 0] = Constants.BOUND_OMITTED_VALUE.value # TODO Hard code (future work)
+                supply_upper_bound = supply_upper_bound[Domains.Supply.upper_bound]
 
             zy_region = len(self.Data.data_aligned) - len(self.Data.Commodities.data)
             other_regions = len(self.Data.data_aligned) - len(self.Data.Commodities.data)
