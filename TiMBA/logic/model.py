@@ -401,11 +401,11 @@ class TiMBA(object):
             supply_upper_bound.loc[supply_upper_bound[
                     Domains.Supply.upper_bound] == 0, Domains.Supply.upper_bound] = Constants.BOUND_OMITTED_VALUE.value
 
-            if dynamization_activated:
-                supply_upper_bound = (supply_upper_bound[Domains.Supply.upper_bound] *
-                                      (1 + supply_upper_bound["growth_rate_upper_bound"]))
-            else:
-                supply_upper_bound = supply_upper_bound[Domains.Supply.upper_bound]
+            # if dynamization_activated:
+            #     supply_upper_bound = (supply_upper_bound[Domains.Supply.upper_bound] *
+            #                           (1 + supply_upper_bound["growth_rate_upper_bound"]))
+            # else:
+            supply_upper_bound = supply_upper_bound[Domains.Supply.upper_bound]
 
             zy_region = len(self.Data.data_aligned) - len(self.Data.Commodities.data)
             other_regions = len(self.Data.data_aligned) - len(self.Data.Commodities.data)
