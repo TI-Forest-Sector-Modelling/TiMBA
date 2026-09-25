@@ -322,13 +322,36 @@ class TiMBA(object):
 
         supply_lower_bound = self.Data.Supply.data_aligned[Domains.Supply.lower_bound]
 
+        paper_demand_prev = pd.concat([
+            pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.region_code]),
+            pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.commodity_code]),
+            pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.quantity])], axis=1)
+
+        paper_demand_prev = paper_demand_prev.loc[paper_demand_prev[Domains.Demand.commodity_code] > 90]  # TODO: Hard Code change to list with all paperproducts in defines
+        paper_demand_prev = paper_demand_prev.reset_index(drop=True)
+
+        recycling_upper_bound = pd.DataFrame(self.Data.RecyclingS.data_aligned[Domains.RecyclingS.recov_ubs])
+        recycled_quantity_supply = pd.concat([paper_demand_prev, recycling_upper_bound], axis=1)
+        recycled_quantity_supply["recycled_quantity"] = (recycled_quantity_supply[Domains.Demand.quantity]
+                                                         * recycled_quantity_supply[Domains.RecyclingS.recov_ubs])
+
+        wastepaper_supply_upper_bound = (
+            recycled_quantity_supply.groupby(Domains.Demand.region_code)["recycled_quantity"].sum().reset_index()
+        )
+        wastepaper_supply_upper_bound[Domains.Supply.commodity_code] = 90  # TODO: Hard Code
+
+        supply_upper_bound = self.Data.Supply.data_aligned.merge(
+            wastepaper_supply_upper_bound,
+            left_on=[Domains.Supply.commodity_code, Domains.Supply.region_code],
+            right_on=[Domains.Supply.commodity_code, Domains.Supply.region_code],
+            how="left").fillna(0)
+
+        supply_upper_bound[Domains.Supply.upper_bound] = (supply_upper_bound[Domains.Supply.upper_bound] +
+                                                          supply_upper_bound["recycled_quantity"])  # TODO Hard code (future work)
+        supply_upper_bound.loc[supply_upper_bound[Domains.Supply.upper_bound] == 0, Domains.Supply.upper_bound] = Constants.BOUND_OMITTED_VALUE.value
+        supply_upper_bound = supply_upper_bound[Domains.Supply.upper_bound]
+
         if self.present_period == 0:
-
-            supply_upper_bound = pd.Series(
-                np.where(np.array(self.Data.Supply.data_aligned[Domains.Supply.upper_bound]) == 0,
-                         Constants.BOUND_OMITTED_VALUE.value,
-                         np.array(self.Data.Supply.data_aligned[Domains.Supply.upper_bound])))
-
             zy_region = len(self.Data.data_aligned) - len(self.Data.Commodities.data)
             other_regions = len(self.Data.data_aligned) - len(self.Data.Commodities.data)
 
@@ -371,42 +394,6 @@ class TiMBA(object):
             import_upper_bound = pd.concat([import_upper_bound, import_upper_bound_zy], axis=0).reset_index(drop=True)
 
         else:
-
-            paper_demand_prev = pd.concat([
-                pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.region_code]),
-                pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.commodity_code]),
-                pd.DataFrame(self.Data.Demand.data_aligned[Domains.Demand.quantity])], axis=1)
-
-            paper_demand_prev = paper_demand_prev.loc[paper_demand_prev[Domains.Demand.commodity_code] > 90]  # ToDo: Hard Code change to list with all paperproducts in defines
-            paper_demand_prev = paper_demand_prev.reset_index(drop=True)
-
-            recycling_upper_bound = pd.DataFrame(self.Data.RecyclingS.data_aligned[Domains.RecyclingS.recov_ubs])
-            recycled_quantity_supply = pd.concat([paper_demand_prev, recycling_upper_bound], axis=1)
-            recycled_quantity_supply["recycled_quantity"] = (recycled_quantity_supply[Domains.Demand.quantity]
-                                                             * recycled_quantity_supply[Domains.RecyclingS.recov_ubs])
-
-            wastepaper_supply_upper_bound = (
-                recycled_quantity_supply.groupby(Domains.Demand.region_code)["recycled_quantity"].sum() # TODO Hard code (future work)
-                                             ).reset_index()
-            wastepaper_supply_upper_bound[Domains.Supply.commodity_code] = 90
-
-            supply_upper_bound = self.Data.Supply.data_aligned.merge(
-                wastepaper_supply_upper_bound,
-                left_on=[Domains.Supply.commodity_code, Domains.Supply.region_code],
-                right_on=[Domains.Supply.commodity_code, Domains.Supply.region_code],
-                how="left").fillna(0)
-
-            supply_upper_bound[Domains.Supply.upper_bound] = (supply_upper_bound[Domains.Supply.upper_bound] +
-                                                              supply_upper_bound["recycled_quantity"])  # TODO Hard code (future work)
-            supply_upper_bound.loc[supply_upper_bound[
-                    Domains.Supply.upper_bound] == 0, Domains.Supply.upper_bound] = Constants.BOUND_OMITTED_VALUE.value
-
-            # if dynamization_activated:
-            #     supply_upper_bound = (supply_upper_bound[Domains.Supply.upper_bound] *
-            #                           (1 + supply_upper_bound["growth_rate_upper_bound"]))
-            # else:
-            supply_upper_bound = supply_upper_bound[Domains.Supply.upper_bound]
-
             zy_region = len(self.Data.data_aligned) - len(self.Data.Commodities.data)
             other_regions = len(self.Data.data_aligned) - len(self.Data.Commodities.data)
 
