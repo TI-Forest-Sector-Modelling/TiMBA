@@ -686,6 +686,8 @@ def dynamize_supply(self, Data: pd.DataFrame, DataChange: pd.DataFrame, DataFore
                                                   period_block=period_info["block"],
                                                   period_length=period_info["length"])
 
+    Data[Domains.Supply.upper_bound] = Data[Domains.Supply.upper_bound] * (1 + growth_rate_upper_bound)
+
     dynamized_supply_fuelwood_roundwood = Data[Domains.Supply.quantity] * fuelwood_roundwood_supply_shift
     dynamized_supply_fuelwood_roundwood.loc[fuelwood_roundwood_supply_index] = 0
 

@@ -300,6 +300,40 @@ class DataManager:
         ExogChangeForest.set_attribute("data_aligned", data_aligned_exogchange_forest)
 
     @staticmethod
+    def align_recycling_supply(RecyclingSupply: InterfaceWorldData.RecyclingS, Regions: InterfaceWorldData.Regions):
+        """
+        Aligns recycling supply data for all countries and add new attribute "data_aligned" in RecyclingS of World Data
+        Collection, covering all combinations of products and regions.
+        """
+        data_recycling = RecyclingSupply.data
+        data_region = Regions.data
+        missing_regions = list(set(data_region[Domains.Regions.region_code]) -
+                               set(data_recycling[Domains.RecyclingS.region_code]))
+
+        recycling_data_default = {
+            f"{Domains.RecyclingS.recov_commodity}": [90, 90, 90],
+            f"{Domains.RecyclingS.used_commodity}": [91, 92, 93],
+            f"{Domains.RecyclingS.fraction_consumption}": [1, 1, 1],
+            f"{Domains.RecyclingS.recov_lbs}": [0, 0, 0],
+            f"{Domains.RecyclingS.recov_ubs}": [0, 0, 0]
+        }
+
+        missing_regions_data = pd.DataFrame()
+
+        for region in missing_regions:
+            missing_regions_data_tmp = pd.concat([pd.DataFrame([region] * 3, columns=[Domains.RecyclingS.region_code]),
+                                                 pd.DataFrame(recycling_data_default)], axis=1)
+            missing_regions_data = pd.concat([missing_regions_data,
+                                              missing_regions_data_tmp], axis=0).reset_index(drop=True)
+
+        data_aligned_recycling = pd.concat([data_recycling, missing_regions_data], axis=0)
+        data_aligned_recycling = data_aligned_recycling.sort_values(by=[Domains.RecyclingS.region_code,
+                                                                        Domains.RecyclingS.used_commodity]
+                                                                    ).reset_index(drop=True)
+
+        RecyclingSupply.set_attribute("data_aligned", data_aligned_recycling)
+
+    @staticmethod
     def update_fuelwood_forest_param(WorldData:InterfaceWorldData):
         """
         Overwrites column fraction_fuelwood in data_aligned of Forest in World Data Collection with
@@ -836,6 +870,7 @@ class DataManager:
         DataManager.create_base_matrix(WorldData)
         DataManager.align_df(WorldData)
         DataManager.align_forest(WorldData.Forest, WorldData.ExogChangeForest, WorldData.Commodities)
+        DataManager.align_recycling_supply(WorldData.RecyclingS, WorldData.Regions)
         DataManager.update_fuelwood_forest_param(WorldData)
         DataManager.fill_na(WorldData)
         DataManager.add_additional_code(WorldData, AdditionalInfo)
