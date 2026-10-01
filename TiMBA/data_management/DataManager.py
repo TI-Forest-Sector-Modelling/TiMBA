@@ -4,10 +4,11 @@ import numpy as np
 from TiMBA.helpers.utils import DomainIterator, mask_data
 from TiMBA.parameters.Domains import Domains, RestOfWorld
 from TiMBA.data_management.DataContainer import DataContainer, InterfaceWorldData, AdditionalInformation
-from TiMBA.parameters.Defines import Constants
+from TiMBA.parameters.Defines import Constants, CountryGroups
 from TiMBA.data_management.ParameterCollector import ParameterCollector
 from TiMBA.parameters.REGEX_patterns import PERIOD_PATTERN
-from TiMBA.parameters.paths import output_name, output_agg_name, forest_output_name, world_price_output_name, manufacture_output_name
+from TiMBA.parameters.paths import (output_name, output_agg_name, forest_output_name, world_price_output_name,
+                                    manufacture_output_name, carbonleak_output_name)
 from TiMBA.parameters.Defines import VarNames
 from TiMBA.logic.model_helpers import extract_product_groups
 from TiMBA.parameters import LOGGING_OUTPUT_FOLDER
@@ -572,6 +573,32 @@ class DataManager:
                 AdditionalInfo[sheet_name].data = AdditionalInfo[sheet_name].data.loc[commodity_indices]
 
     @staticmethod
+    def process_carbon_targets(AdditionalInfo: AdditionalInformation, WorldData: InterfaceWorldData):
+        """
+        Processes country-specific carbon targets provided in EULULUCF_CARBON_PATH for implementation in the
+        optimization. Processed data are stored in DataContainer AdditionalInfoC
+        :param AdditionalInfo: DataContainer holding additional information related to carbon
+        :param WorldData: DataContainer holding model data
+        """
+        climate_target_data = pd.read_csv(AdditionalInfo.carbon_constraint_path, delimiter=";").iloc[:, 1:]
+        data_aligned = WorldData.data_aligned[["RegionCode", "RegionName"]]
+        climate_target_data_aligned = pd.merge(data_aligned, climate_target_data, on="RegionCode", how="left")
+        climate_target_data_aligned = climate_target_data_aligned.fillna(0)
+
+        climate_target_info = climate_target_data_aligned[["RegionCode", "RegionName"]].copy()
+        climate_target_info["Period"] = 0
+        climate_target_flat = pd.DataFrame()
+        for year in climate_target_data_aligned.columns[2:]:
+            climate_target_info_tmp = climate_target_info.copy()
+            climate_target_info_tmp["Period"] = int(year)
+            climate_target_info_tmp["data"] = climate_target_data_aligned[year]
+            climate_target_flat = pd.concat([climate_target_flat, climate_target_info_tmp],
+                                            axis=0).reset_index(drop=True)
+
+        AdditionalInfo.CarbonConstraint.data = climate_target_flat
+        AdditionalInfo.CarbonConstraint.update_domain_name("CarbonConstraint")
+
+    @staticmethod
     def add_fao_codes(WorldData: InterfaceWorldData, AdditionalInfo: AdditionalInformation):
         """
         Add corresponding fao codes for gfpm-products and gfpm-regions to Datacontainer Commodities.data and
@@ -646,10 +673,11 @@ class DataManager:
             Data.data_periods.reset_index(drop=True, inplace=True)
 
     @staticmethod
-    def update_periods(WorldData: InterfaceWorldData, period: int):
+    def update_periods(WorldData: InterfaceWorldData, AddInfo: AdditionalInformation, period: int):
         """
         update the current number of period to WorldDataContainer
         :param WorldData: current WorldDataContainer
+        :param AddInfo: current container for additional information
         :param period: number of current period
         :return: number (int) of current period in pd.DataFrame
         """
@@ -657,6 +685,7 @@ class DataManager:
             DataManager.update_period_data(WorldData[domain_name], period, accessor="data_aligned")
         DataManager.update_period_data(WorldData.WorldPrices, period, accessor="data")
         DataManager.update_period_data(WorldData["OptimizationHelpers"], period, accessor="data")
+        DataManager.update_period_data(AddInfo["CarbonShadowPrice"], period, accessor="data")
 
     @staticmethod
     def get_period_forecast_data(WorldData: InterfaceWorldData):
@@ -830,6 +859,100 @@ class DataManager:
         DataManager.serialize_to_pickle(data_output, OUTPUT_PATH)
 
     @staticmethod
+    def save_carbonleak_output(model, userIO, world_version):
+        """
+        Saves forest-related results for the EU27 relevant for the Project CarbonLeak
+        :param model: World data collection
+        :param userIO: Collector of user inputs
+        :param world_version: Name of the world input file
+        """
+
+        carbonleak_forest_data = model.Data.Forest.forest_output.copy()
+        carbonleak_supply_data = model.Data.OptimizationHelpers.data_periods.copy()
+        geo_data = model.AdditionalInfo.Country.data[["Country-Code", "ISO-Code"]].copy()
+        eu27_iso = CountryGroups.eu27_states.value
+        DataManager.extract_carbonleak_output(data=carbonleak_forest_data,
+                                              geo_data=geo_data,
+                                              col_select=Domains.Forest.forest_stock,
+                                              period_select=[0, 6, 8, 10],
+                                              world_version=world_version,
+                                              region_filter=eu27_iso,
+                                              col_filter=True)
+        DataManager.extract_carbonleak_output(data=carbonleak_forest_data,
+                                              geo_data=geo_data,
+                                              col_select=Domains.Forest.forest_area,
+                                              period_select=[0, 6, 8, 10],
+                                              world_version=world_version,
+                                              region_filter=eu27_iso,
+                                              col_filter=True)
+        DataManager.extract_carbonleak_output(data=carbonleak_supply_data,
+                                              geo_data=geo_data,
+                                              col_select=Domains.Supply,
+                                              period_select=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                                              world_version=world_version,
+                                              region_filter=eu27_iso,
+                                              col_filter=False)
+
+        if userIO.carbon_constraint:
+            carbonleak_output = f"{carbonleak_output_name}_carbon_price_{world_version[:-5]}.csv"
+            carbonleak_output = path.abspath(path.join(*Path(__file__).parts[:-2], carbonleak_output))
+            carbon_price_data = model.AdditionalInfo.CarbonShadowPrice.data_periods.drop_duplicates()
+            carbon_price_data.to_csv(carbonleak_output)
+
+    @staticmethod
+    def extract_carbonleak_output(data, geo_data, col_select, period_select, world_version, col_filter, region_filter):
+        """
+        Extracts TiMBA output relevant for the CarbonLeak project, including development of production, forest area, and
+        forest stock for EU27 member states.
+        :param data: TiMBA output data to be filtered
+        :param geo_data: Geographical data for TiMBA
+        :param col_select: Selected column name used to filter TiMBA output data
+        :param period_select: Selected period used to filter TiMBA output data
+        :param world_version: Name of the world input file
+        :param col_filter: Flag controling the filter option
+        :param region_filter: ISO-codes of regions to be filtered (e.g., EU27 member states)
+        """
+        carbonleak_output = f"{carbonleak_output_name}_{str(col_select)}_{world_version[:-5]}.csv"
+        carbonleak_output = path.abspath(path.join(*Path(__file__).parts[:-2], carbonleak_output))
+
+        data = data.merge(geo_data,
+                          left_on=Domains.Forest.region_code,
+                          right_on="Country-Code")
+        col_name = [Domains.Forest.region_code, "ISO-Code", VarNames.PERIOD_COLNAME.value]
+        if col_filter:
+            col_name = col_name + [col_select]
+            data = data[col_name].drop_duplicates().reset_index(drop=True)
+        else:
+            data = data.drop_duplicates().reset_index(drop=True)
+            data = data[data["domain"] == str(col_select)].reset_index(drop=True)
+            data = data[[x in [78, 80, 81, 82] for x in data["CommodityCode"]]].reset_index(drop=True)
+
+        data = data[[x in region_filter for x in data["ISO-Code"]]].reset_index(drop=True)
+        data = data[[x in period_select for x in data[VarNames.PERIOD_COLNAME.value]]].reset_index(drop=True)
+
+        if col_filter:
+            data_info = data[data[VarNames.PERIOD_COLNAME.value] == 0]
+            data_info = data_info[[Domains.Forest.region_code, "ISO-Code"]].reset_index(drop=True)
+
+            data_info["Element"] = str(col_select)
+            data_transformed = pd.DataFrame()
+
+            for period in period_select:
+                data_tmp = data[data[VarNames.PERIOD_COLNAME.value] == period].reset_index(drop=True)
+                if col_filter:
+                    data_tmp = pd.DataFrame(data_tmp[col_select])
+                    data_tmp = data_tmp.rename(columns={col_select: period})
+                else:
+                    data_tmp = pd.DataFrame(data_tmp["quantity"])
+                    data_tmp = data_tmp.rename(columns={"quantity": period})
+
+                data_transformed = pd.concat([data_transformed, data_tmp], axis=1)
+
+            data = pd.concat([data_info, data_transformed], axis=1)
+
+        data.to_csv(carbonleak_output, index=False)
+
+    @staticmethod
     def readin_preprocess(WorldData: InterfaceWorldData, AdditionalInfo: AdditionalInformation ,
                           WorldPrices: DataContainer, UserOptions: ParameterCollector, Logger):
         """
@@ -856,6 +979,8 @@ class DataManager:
         # Note: activate add_missing_manu_costs() to provide manufacture costs to originally non-producing countries
         # DataManager.add_missing_manu_costs(WorldData)
         DataManager.create_io_matrix(WorldData, update=False, default_io=False)
+        if UserOptions.carbon_constraint:
+            DataManager.process_carbon_targets(AdditionalInfo, WorldData)
 
     @staticmethod
     def specification_preprocess(WorldData: InterfaceWorldData, AdditionalInfo: AdditionalInformation):

@@ -340,6 +340,9 @@ class AdditionalInformation(DataContainer):
         self._Commodity = DataContainer(filepath)
         self._Element = DataContainer(filepath)
         self._CommodityList = DataContainer(filepath)
+        self._Carbon = DataContainer(filepath)
+        self._CarbonConstraint = DataContainer(filepath)
+        self._CarbonShadowPrice = DataContainer(filepath)
 
     @property
     def Country(self) -> DataContainer:
@@ -372,6 +375,30 @@ class AdditionalInformation(DataContainer):
     @CommodityList.setter
     def CommodityList(self, value):
         self._CommodityList = value
+
+    @property
+    def CarbonConstraint(self) -> DataContainer:
+        return self._CarbonConstraint
+
+    @CarbonConstraint.setter
+    def CarbonConstraint(self, value):
+        self._CarbonConstraint = value
+
+    @property
+    def Carbon(self) -> DataContainer:
+        return self._Carbon
+
+    @Carbon.setter
+    def Carbon(self, value):
+        self._Carbon = value
+
+    @property
+    def CarbonShadowPrice(self) -> DataContainer:
+        return self._CarbonShadowPrice
+
+    @CarbonShadowPrice.setter
+    def CarbonShadowPrice(self, value):
+        self._CarbonShadowPrice = value
 
 
 class WorldPriceData(DataContainer):

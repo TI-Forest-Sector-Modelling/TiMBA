@@ -5,6 +5,7 @@ from .paths import (
     INPUT_WORLD_PATH,
     ADDITIONAL_INFORMATION_PATH,
     WORLDPRICE_PATH,
+    EULULUCF_TARGET_PATH,
     PKL_WORLD_PATH,
     PKL_ADD_INFO_PATH,
     PKL_WORLDPRICE_PATH,
@@ -25,18 +26,21 @@ def get_pkl_paths(DATA_PATH: Path) -> Tuple[Path, Path, Path]:
     return pkl_world_path, pkl_add_info_path, pkl_worldprice_path
 
 
-def get_global_paths(data_path: Path, worldversion: str) -> Tuple[Path,
-                                                                  Path,
-                                                                  Path]:
+def get_global_paths(data_path: Path, worldversion: str, UserIO) -> Tuple[Path, Path, Path, Path]:
     """
     Returns correct paths for files based on user input.
-    :param output_path: Folderpath given by user
+    :param data_path: Folderpath given by user
     :return: tuple of strings being paths
     """
     input_world_path = data_path / INPUT_WORLD_PATH / worldversion
     additional_information_path = data_path / ADDITIONAL_INFORMATION_PATH
     worldprice_path = data_path / WORLDPRICE_PATH
-    return input_world_path, additional_information_path, worldprice_path
+    if UserIO.carbon_constraint:
+        carbon_constraint_path = data_path / EULULUCF_TARGET_PATH
+    if UserIO.carbon_constraint:
+        return input_world_path, additional_information_path, worldprice_path, carbon_constraint_path
+    else:
+        return input_world_path, additional_information_path, worldprice_path
 
 
 def get_output_paths(Data_Path: Path, time_stamp: str, sc_name: str):

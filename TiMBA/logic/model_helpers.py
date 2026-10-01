@@ -1144,3 +1144,25 @@ def save_price_data(world_data: InterfaceWorldData, calc_price: pd.Series, shado
 
     world_data.OptimizationHelpers.data.loc[index_domain, shadow_price_col_name] = pd.DataFrame(
         abs(shadow_price)).set_index(index_domain)[0]
+
+
+def save_carbon_shadow_price(add_data, present_period, constraints, constraints_position):
+
+    add_data_container = add_data
+    add_data = add_data.CarbonConstraint.data
+    add_data = add_data[(add_data["Period"] == present_period) &
+                        (add_data["data"] > 0)]
+    add_data = add_data[["RegionCode", "RegionName", "Period"]].drop_duplicates().reset_index(drop=True)
+
+    constraint_list = constraints[constraints_position["carbon_target"][0]: constraints_position["carbon_target"][1]]
+    if len(constraint_list) == 0:
+        add_data["data"] = pd.Series()
+        add_data = add_data.dropna()
+    else:
+        add_data["data"] = pd.Series([round(float(x.dual_value), 2) for x in constraint_list])
+
+    if present_period == 0:
+        add_data_container.CarbonShadowPrice.data = add_data
+    else:
+        add_data_container.CarbonShadowPrice.data = pd.concat([add_data_container.CarbonShadowPrice.data,
+                                                               add_data], axis=0)

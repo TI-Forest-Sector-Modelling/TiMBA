@@ -51,6 +51,7 @@ class ParameterCollector:
         self._hist_hwp_start_year_default = user_input[ParamNames.hist_hwp_start_year_default.value]
         self._show_carbon_dashboard = user_input[ParamNames.show_carbon_dashboard.value]
         self._fao_data_update = user_input[ParamNames.fao_data_update.value]
+        self._carbon_constraint = user_input[ParamNames.carbon_constraint.value]
         self._chart_flag = user_input[ParamNames.chart_flag.value]
 
         # Run directly after __init__ to ensure correct user IO
@@ -305,6 +306,14 @@ class ParameterCollector:
         self._fao_data_update = value
 
     @property
+    def carbon_constraint(self) -> bool:
+        return self._carbon_constraint
+
+    @carbon_constraint.setter
+    def carbon_constraint(self, value: float):
+        self._carbon_constraint = value
+
+    @property
     def chart_flag(self) -> bool:
         return self._chart_flag
 
@@ -320,6 +329,7 @@ class ParameterCollector:
                     f"""transportation_imp_exp_bound_factor=
                     {self.transportation_imp_exp_bound_factor}"""
                     f"material_balance={self.material_balance}, "
+                    f"carbon_constraint={self.carbon_constraint}, "
                     )
 
     def input_data_check(self):
@@ -351,6 +361,7 @@ class ParameterCollector:
         assert isinstance(self.hist_hwp_start_year_default, int)
         assert isinstance(self.show_carbon_dashboard, bool)
         assert isinstance(self.fao_data_update, bool)
+        assert isinstance(self.carbon_constraint, bool)
         assert isinstance(self.chart_flag, bool)
 
         # TODO: Adapt tests for new params: Following are just exemplary.

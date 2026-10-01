@@ -18,7 +18,7 @@ from TiMBA.logic.model_helpers import (
     dynamize_manufacturing_cost, dynamize_supply, dynamize_transportation, actual_period, production_price_calculation,
     transport_cost_calculation, forest_param_alpha, forest_param_gamma, constraint_get_position,
     extract_product_groups, calc_product_shadow_price, calc_world_shadow_price, calc_product_price,
-    shadow_price_correction, save_price_data)
+    shadow_price_correction, save_price_data, save_carbon_shadow_price)
 from TiMBA.logic.tests import (verify_trade_balance, verify_material_balance, verify_global_material_balance,
                         verify_supply_upper_bound, verify_trade_bounds)
 
@@ -102,7 +102,9 @@ class TiMBA(object):
             except BaseException as b_err:
                 self.Logger.error(f"Optimization failed for period {self.present_period}.", exc_info=True)
                 break
-            DataManager.update_periods(self.Data, period=self.present_period)
+            DataManager.update_periods(WorldData=self.Data,
+                                       AddInfo=self.AdditionalInfo,
+                                       period=self.present_period)
 
         DataManager.get_additional_output(self.Data, self.Data.OptimizationHelpers.data_periods, self.Data.Regions.data)
 
@@ -1257,6 +1259,71 @@ class TiMBA(object):
 
         return trade_bound_deviation_penalty, sum_delta_trade_bound, trade_prev_deviation_penalty, sum_delta_trade_prev
 
+    def carbon_target_constraint(self, constraints: list, constraints_position: dict, constraint_counter: list,
+                                 opt_quantity: cp.Variable, DOMAIN_LEN: int, ALL_DOMAINS_LEN: int):
+        """
+        Defines country-specific climate targets as an optimization constraint on carbon in forest biomass.
+        :param constraints: list where constraints are saved for the optimization
+        :param constraints_position: dict where information (constraint name and position) are saved for the result
+        extraction
+        :param constraint_counter: counter tracking of the number of constraints in constraints_position
+        :param opt_quantity: independent variable of the optimization
+        :param DOMAIN_LEN: aligned length of optimized domains
+        """
+        carbon_constraint = self.AdditionalInfo.CarbonConstraint.data.copy()
+
+        carbon_constraint = carbon_constraint[carbon_constraint["Period"] == self.present_period].reset_index(drop=True)
+        carbon_constraint_vector = carbon_constraint["data"].copy()
+        carbon_constraint = carbon_constraint[carbon_constraint["data"] > 0]
+        for region in carbon_constraint["RegionCode"].unique():
+
+            region_index = self.Data.data_aligned[self.Data.data_aligned[Domains.Regions.region_code] == region].index
+            carbon_budget = cp.sum(
+                cp.multiply(opt_quantity[4 * DOMAIN_LEN + region_index.min(): 4 * DOMAIN_LEN + region_index.max() + 1],
+                            np.array(pd.DataFrame(self.Data.Forest.data_aligned[Domains.Forest.fraction_fuelwood].iloc[
+                                                      region_index]))) / ConversionParameters.MIO_FACTOR.value)
+
+            carbon_target = carbon_constraint["data"][region_index.min()]
+
+            constraints += [carbon_budget <= carbon_target]
+        constraint_get_position(constraints_position, "carbon_target", constraints, constraint_counter)
+        self.Logger.info(f"Constraint carbon target done.")
+
+        # Deviation from upper bound
+        region_list = carbon_constraint["RegionCode"].unique()
+        carbon_vector = self.Data.data_aligned[Domains.Regions.region_code].copy()
+        carbon_vector = np.array(carbon_vector.isin(region_list).astype(int)).reshape(DOMAIN_LEN, 1)
+        zero_vector = pd.DataFrame(np.zeros(DOMAIN_LEN))
+        carbon_vector = np.array(pd.concat([zero_vector, zero_vector, zero_vector, zero_vector, pd.DataFrame(carbon_vector)],
+                                           axis=0).reset_index(drop=True)).reshape(ALL_DOMAINS_LEN, 1)
+
+        carbon_constraint_vector = np.array(pd.concat([zero_vector, zero_vector, zero_vector, zero_vector, carbon_constraint_vector],
+                                                      axis=0).reset_index(drop=True)).reshape(ALL_DOMAINS_LEN, 1)
+
+        delta_carbon_upper_bound = cp.multiply((opt_quantity - carbon_constraint_vector), carbon_vector)
+
+        return delta_carbon_upper_bound
+
+    def carbon_deviation_penalties(self, ALL_DOMAINS_LEN, delta_carbon_upper_bound):
+
+        sum_delta_carbon_bound = cp.abs(delta_carbon_upper_bound)
+
+        zero_vector = pd.DataFrame(np.zeros(ALL_DOMAINS_LEN))
+        max_delta_carbon_bound = cp.maximum(delta_carbon_upper_bound, zero_vector)
+
+        zy_region_var = VarNames.ZY_REGION.value
+        domain_col_name = VarNames.DOMAIN_COLNAME.value
+        supply_mask = self.Data.OptimizationHelpers.data[
+            ([x in str(Domains.Supply) for x in self.Data.OptimizationHelpers.data[domain_col_name]]) &
+            (self.Data.OptimizationHelpers.data[Domains.Supply.region_code] != zy_region_var)].index
+
+        carbon_bound_deviation_penalty = pd.DataFrame(np.zeros(ALL_DOMAINS_LEN))
+        # carbon deviation penalty with abitrary high value
+        carbon_bound_deviation_penalty.loc[supply_mask, 0] = 9999 # Used for all CarbonLeak calculations 9999   # Constants.BOUND_OMITTED_VALUE.value
+        carbon_bound_deviation_penalty = np.array(carbon_bound_deviation_penalty)
+
+        return sum_delta_carbon_bound, carbon_bound_deviation_penalty
+
     def setup_optimization_constraints(self, dynamization_activated: bool):
         """
         Set-up the optimization constraints and save them together with related information for the optimization
@@ -1337,13 +1404,24 @@ class TiMBA(object):
 
         self.constraint_demand(constraints, constraints_position, constraint_counter, opt_quantity, opt_ubs, opt_lbs,
                                DOMAIN_LEN)
+
+        if self.UserOptions.carbon_constraint:
+            delta_carbon_upper_bound = self.carbon_target_constraint(constraints, constraints_position,
+                                                                     constraint_counter, opt_quantity, DOMAIN_LEN,
+                                                                     ALL_DOMAINS_LEN)
+
         if self.present_period == 0:
             return (DOMAIN_LEN, ALL_DOMAINS_LEN, opt_quantity, slope, intercept, constraints, constraints_position,
                     opt_ubs, opt_lbs)
         else:
-            return (DOMAIN_LEN, ALL_DOMAINS_LEN, opt_quantity, slope, intercept, constraints,
-                    constraints_position, opt_ubs, opt_lbs, delta_trade_upper_bound, delta_trade_lower_bound,
-                    delta_prev_trade_increase, delta_prev_trade_decrease)
+            if self.UserOptions.carbon_constraint:
+                return (DOMAIN_LEN, ALL_DOMAINS_LEN, opt_quantity, slope, intercept, constraints,
+                        constraints_position, opt_ubs, opt_lbs, delta_trade_upper_bound, delta_trade_lower_bound,
+                        delta_prev_trade_increase, delta_prev_trade_decrease, delta_carbon_upper_bound)
+            else:
+                return (DOMAIN_LEN, ALL_DOMAINS_LEN, opt_quantity, slope, intercept, constraints,
+                        constraints_position, opt_ubs, opt_lbs, delta_trade_upper_bound, delta_trade_lower_bound,
+                        delta_prev_trade_increase, delta_prev_trade_decrease)
 
     def optimization(self, solver_max_iteration: int, solver_rel_accuracy: int, solver_abs_accuracy: int,
                      dynamization_activated: bool):
@@ -1362,10 +1440,18 @@ class TiMBA(object):
              opt_lbs) = self.setup_optimization_constraints(
                 dynamization_activated=dynamization_activated)
         else:
-            (DOMAIN_LEN, ALL_DOMAINS_LEN, opt_quantity, slope, intercept, constraints, constraints_position, opt_ubs,
-             opt_lbs, delta_trade_upper_bound, delta_trade_lower_bound,
-             delta_prev_trade_increase, delta_prev_trade_decrease) = self.setup_optimization_constraints(
-                dynamization_activated=dynamization_activated)
+            if self.UserOptions.carbon_constraint:
+                (
+                DOMAIN_LEN, ALL_DOMAINS_LEN, opt_quantity, slope, intercept, constraints, constraints_position, opt_ubs,
+                opt_lbs, delta_trade_upper_bound, delta_trade_lower_bound, delta_prev_trade_increase,
+                delta_prev_trade_decrease, delta_carbon_upper_bound) = self.setup_optimization_constraints(
+                    dynamization_activated=dynamization_activated)
+            else:
+                (
+                DOMAIN_LEN, ALL_DOMAINS_LEN, opt_quantity, slope, intercept, constraints, constraints_position, opt_ubs,
+                opt_lbs, delta_trade_upper_bound, delta_trade_lower_bound, delta_prev_trade_increase,
+                delta_prev_trade_decrease) = self.setup_optimization_constraints(
+                    dynamization_activated=dynamization_activated)
 
             (trade_bound_deviation_penalty, sum_delta_trade_bound, trade_prev_deviation_penalty, sum_delta_trade_prev
              ) = self.trade_deviation_penalties(ALL_DOMAINS_LEN=ALL_DOMAINS_LEN,
@@ -1374,10 +1460,20 @@ class TiMBA(object):
                                                 delta_prev_trade_decrease=delta_prev_trade_decrease,
                                                 delta_prev_trade_increase=delta_prev_trade_increase)
 
+        if self.UserOptions.carbon_constraint & (self.present_period > 0):
+            sum_delta_carbon_bound, carbon_bound_deviation_penalty = self.carbon_deviation_penalties(
+                ALL_DOMAINS_LEN=ALL_DOMAINS_LEN,
+                delta_carbon_upper_bound=delta_trade_upper_bound)
+
         # Objective function
         if self.present_period == 0:
             objective_function = (cp.multiply(intercept, opt_quantity)
                                   + 1 / 2 * cp.multiply(slope, cp.square(opt_quantity)))
+        elif self.UserOptions.carbon_constraint:
+            objective_function = (cp.multiply(intercept, opt_quantity)
+                                  + 1 / 2 * cp.multiply(slope, cp.square(opt_quantity))
+                                  - cp.multiply(trade_bound_deviation_penalty, sum_delta_trade_bound)
+                                  - cp.multiply(carbon_bound_deviation_penalty, sum_delta_carbon_bound))
         else:
             objective_function = (cp.multiply(intercept, opt_quantity)
                                   + 1 / 2 * cp.multiply(slope, cp.square(opt_quantity))
@@ -1758,6 +1854,11 @@ class TiMBA(object):
                 self.Data.OptimizationHelpers.data.loc[index_domain, quantity_col_name] = pd.DataFrame(
                     opt_quantity_domain).set_index(index_domain)[0]
 
+        if self.UserOptions.carbon_constraint:
+            save_carbon_shadow_price(add_data=self.AdditionalInfo,
+                                     present_period=self.present_period,
+                                     constraints=constraints,
+                                     constraints_position=constraints_position)
         # unit test - verification trade balance
         verify_trade_balance(world_data=self.Data,
                              user_option=self.UserOptions,

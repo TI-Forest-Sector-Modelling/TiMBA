@@ -60,6 +60,8 @@ hist_hwp_start_year = "default"
 hist_hwp_start_year_default = default_year
 show_carbon_dashboard = True
 fao_data_update = False
+# Constraints carbon to specific carbon targets and saves constraint-related shadow price
+carbon_constraint = False
 
 # Max stock density compared to the previous period
 max_density_growth = 1.5
@@ -97,6 +99,7 @@ user_input = {
     ParamNames.hist_hwp_start_year.value: hist_hwp_start_year,
     ParamNames.hist_hwp_start_year_default.value: hist_hwp_start_year_default,
     ParamNames.show_carbon_dashboard.value: show_carbon_dashboard,
+    ParamNames.carbon_constraint.value: carbon_constraint,
     ParamNames.fao_data_update.value: fao_data_update,
     ParamNames.chart_flag.value: chart_flag,
 }

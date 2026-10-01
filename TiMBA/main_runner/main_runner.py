@@ -1,7 +1,6 @@
 from timeit import default_timer
 from TiMBA.logic.model import TiMBA
 from TiMBA.parameters import get_global_paths, get_pkl_paths, get_output_paths
-#from TiMBA.parameters import forest_output_name, output_agg_name, world_price_output_name
 from TiMBA.data_management.ParameterCollector import ParameterCollector
 from TiMBA.results_logging.base_logger import get_logger
 from TiMBA.data_management.DataManager import DataManager
@@ -28,9 +27,15 @@ def main(UserIO: ParameterCollector, world_version: list, time_stamp: str, Data_
     # TODO remove until here
     Logger = get_logger(user_path=Data_Path, time_stamp=time_stamp)
 
-    input_world_path, add_info_path, world_price_path = get_global_paths(Data_Path, world_version)
+    if UserIO.carbon_constraint:
+        (input_world_path, add_info_path, world_price_path,
+         carbon_constraint_path) = get_global_paths(Data_Path, world_version, UserIO)
+    else:
+        input_world_path, add_info_path, world_price_path = get_global_paths(Data_Path, world_version, UserIO)
     WorldDataContent = WorldDataCollector(input_world_path)
     AddInfoContent = AdditionalInformation(add_info_path)
+    if UserIO.carbon_constraint:
+        AddInfoContent.carbon_constraint_path = carbon_constraint_path
     WorldPriceContent = DataContainer(world_price_path)
     OUTPUT_PATH, OUTPUT_DIR = get_output_paths(Data_Path, time_stamp, sc_name)
     DataManager.save_sc_info_as_yaml(Data_Path = Data_Path, sc_name=sc_name, Parameters=UserIO, time_stamp=time_stamp)
@@ -40,6 +45,8 @@ def main(UserIO: ParameterCollector, world_version: list, time_stamp: str, Data_
         Logger.info(f"World.xlsx from: {input_world_path}")
         Logger.info(f"WorldPrice.xlsx from: {world_price_path}")
         Logger.info(f"AddInfo.xlsx from: {add_info_path}")
+        if UserIO.carbon_constraint:
+            Logger.info(f"EU Carbon Constraint from: {carbon_constraint_path}")
         DataManager.readin_preprocess(WorldData=WorldDataContent,
                                       AdditionalInfo=AddInfoContent,
                                       WorldPrices=WorldPriceContent,
@@ -80,6 +87,10 @@ def main(UserIO: ParameterCollector, world_version: list, time_stamp: str, Data_
                                   logger=Logger,
                                   OUTPUT_PATH=OUTPUT_PATH,
                                   OUTPUT_DIR=OUTPUT_DIR)
+
+    DataManager.save_carbonleak_output(model=Model,
+                                       userIO=UserIO,
+                                       world_version=world_version)
 
     Logger.info(f"Computing TiMBA complete")
     duration = round(default_timer() - start, 3)

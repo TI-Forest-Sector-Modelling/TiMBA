@@ -78,6 +78,7 @@ class ParamNames(Enum):
     hist_hwp_start_year_default = "hist_hwp_start_year_default"
     show_carbon_dashboard = "show_carbon_dashboard"
     fao_data_update = "fao_data_update"
+    carbon_constraint = "carbon_constraint"
     chart_flag = "chart_flag"
 
 
@@ -122,3 +123,11 @@ class SolverParameters(Enum):
 class Shifter(Enum):
     except_shifter_zero = 0
     except_shifter_minus_one = -1
+
+
+class CountryGroups(Enum):
+    eu27_states = ["AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "IRL",
+                   "ITA", "LVA", "LTU", "LUX", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE"]
+    eu27plus_states = ["AUT", "BEL", "BGR", "HRV", "CYP", "CZE", "DNK", "EST", "FIN", "FRA", "DEU", "GRC", "HUN", "IRL",
+                       "ITA", "LVA", "LTU", "LUX", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "ESP", "SWE", "CHE",
+                       "NOR", "GBR"]  # EU27 + CHE + NOR + GBR
