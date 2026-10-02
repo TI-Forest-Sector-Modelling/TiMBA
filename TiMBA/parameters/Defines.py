@@ -112,8 +112,8 @@ class SolverParameters(Enum):
         0.00001 (with tighted trade boundaries 0.005, 0.001)
     """
     MAX_ITERATION = 500000
-    REL_ACCURACY = 0.00025
-    ABS_ACCURACY = 0.00001
+    REL_ACCURACY = 0.00001
+    ABS_ACCURACY = 0.00025
     MAX_ITERATION_UNIT_TEST = 500000
     REL_ACCURACY_UNIT_TEST = 0.00025
     ABS_ACCURACY_UNIT_TEST = 0.00001
