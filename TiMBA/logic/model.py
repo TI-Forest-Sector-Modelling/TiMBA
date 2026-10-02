@@ -45,12 +45,9 @@ class TiMBA(object):
         self.present_period = None
         self.period_length = None
 
-    def compute(self, max_iteration: int, rel_accuracy: int, abs_accuracy: int, dynamization_activated: bool,
+    def compute(self, dynamization_activated: bool,
                 constants: list, capped_prices: bool):
         """Loop model calculation over existing periods (execute methods and store results of the model)
-        :param max_iteration: Maximal number of periods
-        :param rel_accuracy: relative accuracy of the solver
-        :param abs_accuracy: absolute accuracy of the solver
         :param dynamization_activated: dynamization of the model on or off #TODO remove after validation?
         :param constants: list where the user can choose to run model with constant prices, slopes or intercepts #TODO remove after validation?
         :param capped_prices: flag for correction of production prices (demprices=prodprices) #TODO remove after validation?
@@ -86,10 +83,7 @@ class TiMBA(object):
             
             self.vectorize_domains()
             try:
-                self.optimization(solver_max_iteration=max_iteration,
-                                  solver_rel_accuracy=rel_accuracy,
-                                  solver_abs_accuracy=abs_accuracy,
-                                  dynamization_activated=dynamization_activated)
+                self.optimization(dynamization_activated=dynamization_activated)
 
                 self.extract_optimization_results(
                     opt_quantity=self.Data.OptimizationResults.optimized_quantity,
@@ -1345,14 +1339,10 @@ class TiMBA(object):
                     constraints_position, opt_ubs, opt_lbs, delta_trade_upper_bound, delta_trade_lower_bound,
                     delta_prev_trade_increase, delta_prev_trade_decrease)
 
-    def optimization(self, solver_max_iteration: int, solver_rel_accuracy: int, solver_abs_accuracy: int,
-                     dynamization_activated: bool):
+    def optimization(self, dynamization_activated: bool):
         """
         Defines the objective function and the optimization problem, setup the cvxpy-solver environment. Implement
         penalties for trade deviations considered within optimization for the base period.
-        :param solver_max_iteration: solver parameter for maximal iteration
-        :param solver_rel_accuracy: solver parameter for relative accuracy
-        :param solver_abs_accuracy: solver parameter for absolute accuracy
         :param dynamization_activated: flag to activate or deactivate the dynamization in the model
         :return: optimization problem, optimization parameters (opt_quantity), and
         optimization constraints (constraints, constraints_position)
@@ -1402,18 +1392,18 @@ class TiMBA(object):
         self.Logger.info(f"Solver settings:")
         self.Logger.info(f"===========================")
         self.Logger.info(f"Used solver: {cp.OSQP}")
-        self.Logger.info(f"Max iterations: {solver_max_iteration}")
-        self.Logger.info(f"Absolute solver accuracy: {format(solver_abs_accuracy, '.5f')}")
-        self.Logger.info(f"Relative solver accuracy: {format(solver_rel_accuracy, '.5f')}")
+        self.Logger.info(f"Max iterations: {SolverParameters.MAX_ITERATION.value}")
+        self.Logger.info(f"Absolute solver accuracy: {SolverParameters.ABS_ACCURACY.value, '.5f'}")
+        self.Logger.info(f"Relative solver accuracy: {SolverParameters.REL_ACCURACY.value, '.5f'}")
         self.Logger.info(f"===========================")
 
         try:
             optimization_problem.solve(
                 solver=cp.OSQP,
                 verbose=self.UserOptions.verbose_optimization_logger,
-                max_iter=solver_max_iteration,
-                eps_abs=solver_rel_accuracy, 
-                eps_rel=solver_abs_accuracy
+                max_iter=SolverParameters.MAX_ITERATION.value,
+                eps_abs=SolverParameters.ABS_ACCURACY.value, 
+                eps_rel=SolverParameters.REL_ACCURACY.value
             )
         except cvxpy.error.DCPError:
             self.Logger.error(f"...DCPError while optimization.", exc_info=True)
