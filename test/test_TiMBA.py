@@ -156,7 +156,7 @@ class TestTiMBAClass(unittest.TestCase):
 
         with patch("TiMBA.cli.cli.run_timba") as mock_timba, \
              patch("TiMBA.cli.cli.run_extensions") as mock_ext, \
-             patch("TiMBA.cli.cli.load_data") as mock_load, \
+             patch("TiMBA.cli.cli.check_and_load_data") as mock_load, \
              patch("TiMBA.cli.cli.timba_dashboard") as mock_dashboard, \
              patch("TiMBA.cli.cli.C_Module") as mock_c:
 
@@ -178,7 +178,9 @@ class TestTiMBAClass(unittest.TestCase):
                 "--repo", "dummy_repo",
                 "--branch", "main",
                 "--folder", "dummy_folder",
-                "--folderpath", str(self.PACKAGEDIR)
+                "--folderpath", str(self.PACKAGEDIR),
+                "--checkflag", True,
+                "--loadflag", True
             ])
             self.assertEqual(res.exit_code, 0,
                              f"load_data command failed: {res.output}")

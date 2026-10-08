@@ -291,7 +291,23 @@ def dashboard_cli(num_files, data_folderpath):
     help="The destination where the data should be copied to."
 )
 
-def load_data_cli(user, repo, branch, folder, folderpath):
+@click.option(
+    '-CF', '--checkflag',
+    default=True,
+    show_default=True,
+    required=True,
+    help="Flag to control if missing input data is checked against additional information repository."
+)
+
+@click.option(
+    '-LF', '--loadflag',
+    default=True,
+    show_default=True,
+    required=True,
+    help="Flag to control if missing input data is loaded."
+)
+
+def load_data_cli(user, repo, branch, folder, folderpath, checkflag, loadflag):
     """load input data from web-based data hub"""
 
     dest_path = Path(folderpath) / DESTINATION_PATH
@@ -302,8 +318,8 @@ def load_data_cli(user, repo, branch, folder, folderpath):
         branch=branch,
         source_folder=folder,
         dest_folder=dest_path,
-        check_flag=True,
-        load_flag=True
+        check_flag=checkflag,
+        load_flag=loadflag
     )
 
 
