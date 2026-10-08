@@ -1,7 +1,7 @@
 from pathlib import Path
 import click
 from TiMBA.main import run_timba, parameter_setter
-from TiMBA.data_management.Load_Data import load_data
+from TiMBA.data_management.Load_Data import check_and_load_data
 from TiMBA.parameters.paths import (
     GIT_USER, GIT_REPO, GIT_BRANCH, DESTINATION_PATH, GIT_FOLDER
 )
@@ -291,17 +291,35 @@ def dashboard_cli(num_files, data_folderpath):
     help="The destination where the data should be copied to."
 )
 
-def load_data_cli(user, repo, branch, folder, folderpath):
+@click.option(
+    '-CF', '--checkflag',
+    default=True,
+    show_default=True,
+    required=True,
+    help="Flag to control if missing input data is checked against additional information repository."
+)
+
+@click.option(
+    '-LF', '--loadflag',
+    default=True,
+    show_default=True,
+    required=True,
+    help="Flag to control if missing input data is loaded."
+)
+
+def load_data_cli(user, repo, branch, folder, folderpath, checkflag, loadflag):
     """load input data from web-based data hub"""
 
     dest_path = Path(folderpath) / DESTINATION_PATH
     print("destination path: ", dest_path)
-    load_data(
+    check_and_load_data(
         user=user,
         repo=repo,
         branch=branch,
         source_folder=folder,
-        dest_folder=dest_path
+        dest_folder=dest_path,
+        check_flag=checkflag,
+        load_flag=loadflag
     )
 
 
