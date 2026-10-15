@@ -34,8 +34,8 @@ jobs:
           uv run coverage report
           uv run coverage xml -o coverage.xml
 
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v2
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v7
         with:
           args: >
             -Dsonar.organization=ti-forest-sector-modelling
