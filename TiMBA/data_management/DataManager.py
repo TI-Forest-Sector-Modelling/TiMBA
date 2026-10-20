@@ -781,8 +781,15 @@ class DataManager:
             WorldPrices.data = world_price_output.reset_index(drop=True)
 
     @staticmethod
-    def save_model_output(model_data: InterfaceWorldData, time_stamp: str, world_version: str, logger: classmethod,
-                          OUTPUT_PATH: Path,OUTPUT_DIR: Path):
+    def save_model_output(
+        model_data: InterfaceWorldData, 
+        bitrade_data: pd.DataFrame,
+        time_stamp: str, 
+        world_version: str, 
+        logger: classmethod,
+        OUTPUT_PATH: Path,
+        OUTPUT_DIR: Path,
+    ):
         """
         Saves model outputs for each input world as separate csv files and one merged pkl file.
         :param model_data: World data collection
@@ -826,6 +833,7 @@ class DataManager:
         data_output.update({"data_periods": model_data.OptimizationHelpers.data_periods})
         data_output.update({"ManufactureCoeff": model_data.ManufactureCoefficients.data_periods})
         data_output.update({"WorldPrices": model_data.WorldPrices.data_periods})
+        data_output.update({"bilateral_trade": bitrade_data})
 
         DataManager.serialize_to_pickle(data_output, OUTPUT_PATH)
 

@@ -1,8 +1,10 @@
 from TiMBA.parameters.Defines import ParamNames
 from c_module.logic.main import C_Module
+import timba_trade.main as tm
+
+import pandas as pd
+
 # Add-on carbon module
-
-
 class TiMBAExtensions(object):
     def __init__(self,
                  UserOptions):
@@ -34,4 +36,11 @@ class TiMBAExtensions(object):
 def run_extensions(UserIO):
     extensions = TiMBAExtensions(UserOptions=UserIO)
     extensions.run_carbon_module()
+
+def run_trade_module(data:pd.DataFrame)->pd.DataFrame:
+    return tm.main(
+        timba_data=data, 
+        save_file=False,
+        folder_path=r"E:\timba_trade_data",
+    )
 

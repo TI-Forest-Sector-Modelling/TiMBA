@@ -7,6 +7,7 @@ from TiMBA.results_logging.base_logger import get_logger
 from TiMBA.data_management.DataManager import DataManager
 from TiMBA.data_management.DataContainer import WorldDataCollector, DataContainer, AdditionalInformation
 from TiMBA.parameters.Defines import SolverParameters
+from TiMBA.logic.model_extensions import run_trade_module
 import os
 from pathlib import Path
 
@@ -73,8 +74,14 @@ def main(UserIO: ParameterCollector, world_version: list, time_stamp: str, Data_
                   capped_prices=UserIO.capped_prices)
     # Output
     print()
+
+    bilateral_trade = run_trade_module(
+        data=Model.Data.OptimizationHelpers.data_periods
+    )
+
     Logger.info(f"Save optimization results")
     DataManager.save_model_output(model_data=Model.Data,
+                                  bitrade_data=bilateral_trade,
                                   time_stamp=time_stamp,
                                   world_version=world_version,
                                   logger=Logger,

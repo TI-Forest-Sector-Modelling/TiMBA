@@ -40,6 +40,7 @@ target/
 # Environments
 .env
 .venv
+.nvenv
 env/
 venv/
 venv-test
