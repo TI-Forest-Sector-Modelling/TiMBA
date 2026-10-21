@@ -65,10 +65,7 @@ def main(UserIO: ParameterCollector, world_version: list, time_stamp: str, Data_
     Model = TiMBA(Data=WorldDataContent, UserOptions=UserIO, AdditionalInfo=AddInfoContent,
                   WorldPriceData=WorldPriceContent, LogHandler=Logger)#, ResultHandler=ResultsHandler)
     # Computation
-    Model.compute(max_iteration=SolverParameters.MAX_ITERATION.value,
-                  rel_accuracy=SolverParameters.REL_ACCURACY.value,
-                  abs_accuracy=SolverParameters.ABS_ACCURACY.value,
-                  dynamization_activated=UserIO.dynamization_activated,
+    Model.compute(dynamization_activated=UserIO.dynamization_activated,
                   constants=UserIO.constants,
                   capped_prices=UserIO.capped_prices)
     # Output
