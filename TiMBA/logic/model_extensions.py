@@ -1,8 +1,10 @@
 from TiMBA.parameters.Defines import ParamNames
+from TiMBA.parameters.paths import timba_trade_paths
 from c_module.logic.main import C_Module
 import timba_trade.main as tm
 
 import pandas as pd
+from pathlib import Path
 
 # Add-on carbon module
 class TiMBAExtensions(object):
@@ -37,10 +39,17 @@ def run_extensions(UserIO):
     extensions = TiMBAExtensions(UserOptions=UserIO)
     extensions.run_carbon_module()
 
-def run_trade_module(data:pd.DataFrame)->pd.DataFrame:
+def run_trade_module(
+        data:pd.DataFrame,
+        data_path:Path, 
+        ttp:dict=timba_trade_paths
+)->pd.DataFrame:
+    ttp["BACI_DIR"] = data_path / Path(ttp["BACI_DIR"])
+    ttp["LOG_DIR"] = data_path / Path(ttp["LOG_DIR"])
+
     return tm.main(
         timba_data=data, 
         save_file=False,
-        folder_path=r"E:\timba_trade_data",
+        path_dict=ttp,
     )
 

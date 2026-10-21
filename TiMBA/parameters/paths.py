@@ -24,6 +24,16 @@ ADDINFOPTHTOOLBOX = r"input/02_Additional_Information/"
 # Input to adress data storage in GIT Repo
 GIT_USER="TI-Forest-Sector-Modelling"
 GIT_REPO="TiMBA_Additional_Information"
-GIT_BRANCH="main"
+GIT_BRANCH="bilateral_trade_data_cm"
 GIT_FOLDER="Input_Data/default_scenario"
 DESTINATION_PATH=r"TiMBA/data/input/"
+
+#Paths used in TiMBA_Trade
+timba_trade_paths = {
+    "SCENARIO_DIR": None,
+    "BACI_DIR": ADDINFOPTHTOOLBOX,
+    "OUTPUT_DIR": None,
+    "LOG_DIR": LOGGING_OUTPUT_FOLDER,
+    "scen_name": None,
+    "baci_file_name": r"BACI_DATA_as_vector.parquet",
+}

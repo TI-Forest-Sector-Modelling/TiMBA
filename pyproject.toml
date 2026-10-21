@@ -26,7 +26,7 @@ dependencies = [
     "tomli==2.0.2",
     "typing==3.7.4.3",
     "TiMBA-Charts==1.0.3", 
-    "TiMBA-Trade==0.1.4",
+    "TiMBA-Trade>=0.1.6",
     "PyYAML==6.0.3",
     "Carbon-Module==1.1.2",
 ]
