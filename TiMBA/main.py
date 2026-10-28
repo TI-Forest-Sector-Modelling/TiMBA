@@ -2,7 +2,7 @@ from TiMBA.main_runner.main_runner import main
 from TiMBA.parameters import INPUT_WORLD_PATH
 from TiMBA.logic.model_extensions import run_extensions
 from TiMBA.data_management.ParameterCollector import ParameterCollector
-from TiMBA.parameters.paths import INPUT_WORLD_PATH,OUTPUT_DIR, ADDINFOPTHTOOLBOX 
+from TiMBA.parameters.paths import INPUT_WORLD_PATH, OUTPUT_DIR, ADDINFOPTHTOOLBOX
 from pathlib import Path
 import datetime as dt
 import os
@@ -16,7 +16,7 @@ from TiMBA.parameters.paths import (
     GIT_FOLDER, INPUT_WORLD_PATH, DESTINATION_PATH,
     ADDINFOPTHTOOLBOX
 )
-from TiMBA.data_management.Load_Data import load_data
+from TiMBA.data_management.Load_Data import check_and_load_data
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
@@ -30,26 +30,37 @@ def run_timba(Parameters: dict = None, folderpath: str = None):
     if folderpath is None:
         folderpath = PACKAGEDIR
     INPUT_PATH = folderpath / DATA_FOLDER / INPUT_WORLD_PATH
-    if os.path.exists(INPUT_PATH):
-        pass
-    else:
-        print("FileNotFoundError at: ", INPUT_PATH)
-        print(f"Make sure input data is downloaded to {INPUT_PATH} \nor ",
-              "change the folder path where the data is stored.",
-              """Note: For this simulation standard input
-              files will be loaded from GitHub""",
-              f"and saved at {folderpath / DESTINATION_PATH}")
-        load_data(
+    if check_and_load_data(
             user=GIT_USER,
             repo=GIT_REPO,
             branch=GIT_BRANCH,
             source_folder=GIT_FOLDER,
-            dest_folder=folderpath / DESTINATION_PATH
+            dest_folder=folderpath / DESTINATION_PATH,
+            check_flag=True,
+            load_flag=False):
+        print("All Input data found at: ", folderpath / DATA_FOLDER)
+    else:
+        print("")
+        print("Input data missing at: ", folderpath / DATA_FOLDER)
+        print("")
+        print(f"Make sure input data is downloaded to {folderpath / DATA_FOLDER} \nor",
+              "change the folder path where the data is stored.\nNote:",
+              "For this simulation missing input files will be loaded from GitHub\nand",
+              f"saved at {folderpath / DESTINATION_PATH}")
+        check_and_load_data(
+            user=GIT_USER,
+            repo=GIT_REPO,
+            branch=GIT_BRANCH,
+            source_folder=GIT_FOLDER,
+            dest_folder=folderpath / DESTINATION_PATH,
+            check_flag=True,
+            load_flag=True
         )
     world_list = os.listdir(INPUT_PATH)
     for world in world_list:
         try:
             current_dt = dt.datetime.now().strftime("%Y%m%dT%H-%M-%S")
+            print("")
             print("The model starts now:", (dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")),"\n")
             print(f"Path: {folderpath}")
             print(f"Name of input file: {world[:len(world) - 5]} \n")
