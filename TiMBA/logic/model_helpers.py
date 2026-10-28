@@ -419,7 +419,6 @@ def dynamize_forest(Data: pd.DataFrame, DataChange: pd.DataFrame, DataSupply: pd
     This data is than used in dynamize_supply().
     """
 
-
     growth_rate_stock = growth_dynamization(Data[Domains.Forest.growth_rate_forest_stock],
                                             DataChange[Domains.ExogChangeForest.growth_rate_stock],
                                             Shifter.except_shifter_minus_one.value,
@@ -589,8 +588,10 @@ def dynamize_forest(Data: pd.DataFrame, DataChange: pd.DataFrame, DataSupply: pd
     Data[Domains.Forest.gdp_per_capita_base_period] = gdp_per_capita * ConversionParameters.MIO_FACTOR.value
     Data["ga"] = periodic_area_growth # TODO Hard code
     Data["gu"] = periodic_stock_growth_without_harvest # TODO Hard code
+    Data["stock_growth"] = stock_growth
     Data["supply_from_forest"] = roundwood_supply.iloc[:len(Data)] # TODO Hard code
-
+    Data["adj_stock_growth"] = adjustment_endogenous_growth_rate_stock
+    Data[Domains.Forest.max_ratio_inventory_drain] = max_ratio_inventory_drain
     return growth_df
 
 

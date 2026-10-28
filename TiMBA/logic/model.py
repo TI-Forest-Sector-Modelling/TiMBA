@@ -21,6 +21,7 @@ from TiMBA.logic.model_helpers import (
     shadow_price_correction, save_price_data)
 from TiMBA.logic.tests import (verify_trade_balance, verify_material_balance, verify_global_material_balance,
                         verify_supply_upper_bound, verify_trade_bounds)
+from TiMBA.parameters.Defines import Constants
 
 
 class TiMBA(object):
@@ -711,8 +712,51 @@ class TiMBA(object):
         :param DOMAIN_LEN: aligned length of optimized domains
         """
         max_harvest_var = VarNames.MAX_HARVEST.value
+        max_inventory_drain_to_inventory_growth = (
+            self.Data.Forest.data_aligned[Domains.Forest.max_ratio_inventory_drain])
+        limited_inventory_drain = (
+            max_inventory_drain_to_inventory_growth[max_inventory_drain_to_inventory_growth != -1])
+        limited_inventory_drain_idx = limited_inventory_drain.index
+
+        if self.present_period == 0:
+            gamma = self.Data.Forest.data_aligned["gamma"].copy()
+            forest_stock_prev = self.Data.Forest.data_aligned[Domains.Forest.forest_stock].copy()
+            forest_area_prev = self.Data.Forest.data_aligned[Domains.Forest.forest_area].copy()
+            stock_area_elast = self.Data.Forest.data_aligned[Domains.Forest.elasticity_growth_rate_forest_stock].copy()
+
+            stock_density = forest_stock_prev / forest_area_prev
+            stock_density.loc[stock_density == 0] = Constants.NON_ZERO_PARAMETER.value
+
+            stock_growth_without_harvest = gamma * (stock_density ** stock_area_elast)
+            stock_growth = forest_stock_prev * stock_growth_without_harvest
+
+        else:
+            stock_prev = self.Data.Forest.data_periods[
+                self.Data.Forest.data_periods["Period"] == self.present_period - 1][
+                Domains.Forest.forest_stock].reset_index(drop=True)
+
+            periodic_area_growth = self.Data.Forest.data_aligned["ga"]
+            periodic_stock_growth_without_harvest = self.Data.Forest.data_aligned["gu"]
+            adjustment_endogenous_growth_rate_stock = self.Data.Forest.data_aligned["adj_stock_growth"]
+
+            stock_growth = (periodic_area_growth + periodic_stock_growth_without_harvest +
+                            adjustment_endogenous_growth_rate_stock) * stock_prev
+
+        available_stock = self.Data.Forest.data_aligned[Domains.Forest.forest_stock].copy()
+
+        stock_growth.loc[limited_inventory_drain_idx] = (stock_growth.loc[limited_inventory_drain_idx] *
+                                                         limited_inventory_drain)
+
+        # Negative stock growth handling
+        neg_stock_growth_index = stock_growth[stock_growth < 0].index
+        # Option A: No stock available for harvest if negative stock growth
+        # stock_growth.loc[neg_stock_growth_index] = 0
+        # Option B: Full stock available for harvest if negative stock growth
+        stock_growth.loc[neg_stock_growth_index] = available_stock.loc[neg_stock_growth_index]
+
+        available_stock.loc[limited_inventory_drain_idx] = stock_growth.loc[limited_inventory_drain_idx]
+
         for region in self.Data.Regions.data[Domains.Regions.region_code].iloc[:self.Data.Regions.df_length - 1]:
-            #TODO could be implemented as a specific iterator (iterate over all regions with zy and all countries without zy)
             region_index = self.Data.data_aligned[self.Data.data_aligned[Domains.Regions.region_code] == region].index
             total_harvest = self.Data.Forest.data_aligned[Domains.Forest.ratio_inventory_drain].iloc[
                                 region_index.min()] * cp.sum(
@@ -720,9 +764,8 @@ class TiMBA(object):
                             np.array(pd.DataFrame(self.Data.Forest.data_aligned[Domains.Forest.fraction_fuelwood].iloc[
                                                       region_index]))) / ConversionParameters.MIO_FACTOR.value)
 
-            available_stock = self.Data.Forest.data_aligned[Domains.Forest.forest_stock].iloc[region_index.min()]
-
-            constraints += [total_harvest <= available_stock]
+            available_stock_region = available_stock.iloc[region_index.min()]
+            constraints += [total_harvest <= available_stock_region]
         constraint_get_position(constraints_position, max_harvest_var, constraints, constraint_counter)
         self.Logger.info(f"Constraint maximum harvestable forest stock done.")
 
