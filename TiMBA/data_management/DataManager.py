@@ -734,6 +734,7 @@ class DataManager:
             Domains.Forest.fraction_fuelwood,
             Domains.Forest.forest_growth_without_harvest,
             Domains.Forest.supply_from_forest,
+            "stock_growth"
         ]]
 
         WorldData.Forest.set_attribute("forest_output", forest_output)
