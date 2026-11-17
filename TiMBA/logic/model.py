@@ -104,7 +104,8 @@ class TiMBA(object):
                 break
             DataManager.update_periods(WorldData=self.Data,
                                        AddInfo=self.AdditionalInfo,
-                                       period=self.present_period)
+                                       period=self.present_period,
+                                       UserOption=self.UserOptions)
 
         DataManager.get_additional_output(self.Data, self.Data.OptimizationHelpers.data_periods, self.Data.Regions.data)
 

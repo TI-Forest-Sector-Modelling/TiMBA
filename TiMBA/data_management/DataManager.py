@@ -673,19 +673,21 @@ class DataManager:
             Data.data_periods.reset_index(drop=True, inplace=True)
 
     @staticmethod
-    def update_periods(WorldData: InterfaceWorldData, AddInfo: AdditionalInformation, period: int):
+    def update_periods(WorldData: InterfaceWorldData, AddInfo: AdditionalInformation, period: int, UserOption: dict):
         """
         update the current number of period to WorldDataContainer
         :param WorldData: current WorldDataContainer
         :param AddInfo: current container for additional information
         :param period: number of current period
+        :param UserOption: dict holding User-set parameters
         :return: number (int) of current period in pd.DataFrame
         """
         for domain_name in DomainIterator.get_domain_names(DomainIterator.UPDATE_DOMAINS):
             DataManager.update_period_data(WorldData[domain_name], period, accessor="data_aligned")
         DataManager.update_period_data(WorldData.WorldPrices, period, accessor="data")
         DataManager.update_period_data(WorldData["OptimizationHelpers"], period, accessor="data")
-        DataManager.update_period_data(AddInfo["CarbonShadowPrice"], period, accessor="data")
+        if UserOption.carbon_constraint:
+            DataManager.update_period_data(AddInfo["CarbonShadowPrice"], period, accessor="data")
 
     @staticmethod
     def get_period_forecast_data(WorldData: InterfaceWorldData):
